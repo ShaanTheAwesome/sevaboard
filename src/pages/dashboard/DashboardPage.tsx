@@ -1,9 +1,9 @@
-import { Link } from "react-router-dom"
 import { CountdownTimer } from "@/components/common/CountdownTimer"
-import { NAV_ITEMS } from "@/lib/navigation"
-import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { useAuth } from "@/hooks/useAuth"
 import { UpcomingTasks } from "./UpcomingTasks"
+// import { Link } from "react-router-dom"
+// import { NAV_ITEMS } from "@/lib/navigation"
+// import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 
 export function DashboardPage() {
   const { profile } = useAuth()
