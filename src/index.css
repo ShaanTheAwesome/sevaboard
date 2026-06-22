@@ -1,0 +1,141 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+@import "@fontsource-variable/geist";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+    --font-heading: var(--font-sans);
+    --font-sans: 'Geist Variable', sans-serif;
+    --color-saffron: var(--saffron);
+    --color-gold: var(--gold);
+    --color-sidebar-ring: var(--sidebar-ring);
+    --color-sidebar-border: var(--sidebar-border);
+    --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+    --color-sidebar-accent: var(--sidebar-accent);
+    --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+    --color-sidebar-primary: var(--sidebar-primary);
+    --color-sidebar-foreground: var(--sidebar-foreground);
+    --color-sidebar: var(--sidebar);
+    --color-chart-5: var(--chart-5);
+    --color-chart-4: var(--chart-4);
+    --color-chart-3: var(--chart-3);
+    --color-chart-2: var(--chart-2);
+    --color-chart-1: var(--chart-1);
+    --color-ring: var(--ring);
+    --color-input: var(--input);
+    --color-border: var(--border);
+    --color-destructive: var(--destructive);
+    --color-accent-foreground: var(--accent-foreground);
+    --color-accent: var(--accent);
+    --color-muted-foreground: var(--muted-foreground);
+    --color-muted: var(--muted);
+    --color-secondary-foreground: var(--secondary-foreground);
+    --color-secondary: var(--secondary);
+    --color-primary-foreground: var(--primary-foreground);
+    --color-primary: var(--primary);
+    --color-popover-foreground: var(--popover-foreground);
+    --color-popover: var(--popover);
+    --color-card-foreground: var(--card-foreground);
+    --color-card: var(--card);
+    --color-foreground: var(--foreground);
+    --color-background: var(--background);
+    --radius-sm: calc(var(--radius) * 0.6);
+    --radius-md: calc(var(--radius) * 0.8);
+    --radius-lg: var(--radius);
+    --radius-xl: calc(var(--radius) * 1.4);
+    --radius-2xl: calc(var(--radius) * 1.8);
+    --radius-3xl: calc(var(--radius) * 2.2);
+    --radius-4xl: calc(var(--radius) * 2.6);
+}
+
+/*
+  SevaBoard theme: navy + saffron/gold festival accents, with separate
+  light and dark palettes. The sidebar (--sidebar*) is intentionally kept
+  identical across both themes, since it's always the dark navy panel.
+*/
+:root {
+    --background: #f7f5f1;
+    --foreground: #1a2233;
+    --card: #ffffff;
+    --card-foreground: #1a2233;
+    --popover: #ffffff;
+    --popover-foreground: #1a2233;
+    --primary: #ff9933;
+    --primary-foreground: #1a1306;
+    --secondary: #ece7df;
+    --secondary-foreground: #1a2233;
+    --muted: #f0ece4;
+    --muted-foreground: #6b7280;
+    --accent: #ffd700;
+    --accent-foreground: #221c00;
+    --destructive: #dc2626;
+    --border: oklch(0 0 0 / 10%);
+    --input: oklch(0 0 0 / 14%);
+    --ring: #ff9933;
+    --chart-1: #ff9933;
+    --chart-2: #ffd700;
+    --chart-3: #34d399;
+    --chart-4: #60a5fa;
+    --chart-5: #f472b6;
+    --radius: 0.625rem;
+    --sidebar: #0d1320;
+    --sidebar-foreground: #f5f3ee;
+    --sidebar-primary: #ff9933;
+    --sidebar-primary-foreground: #1a1306;
+    --sidebar-accent: #1a2233;
+    --sidebar-accent-foreground: #f5f3ee;
+    --sidebar-border: oklch(1 0 0 / 8%);
+    --sidebar-ring: #ff9933;
+    --saffron: #a8530a;
+    --gold: #b8860b;
+}
+
+.dark {
+    --background: #1b2336;
+    --foreground: #f5f3ee;
+    --card: #232e47;
+    --card-foreground: #f5f3ee;
+    --popover: #232e47;
+    --popover-foreground: #f5f3ee;
+    --primary: #ff9933;
+    --primary-foreground: #1a1306;
+    --secondary: #2e3952;
+    --secondary-foreground: #f5f3ee;
+    --muted: #2a364f;
+    --muted-foreground: #a0aac1;
+    --accent: #ffd700;
+    --accent-foreground: #221c00;
+    --destructive: #ef4444;
+    --border: oklch(1 0 0 / 10%);
+    --input: oklch(1 0 0 / 14%);
+    --ring: #ff9933;
+    --chart-1: #ff9933;
+    --chart-2: #ffd700;
+    --chart-3: #34d399;
+    --chart-4: #60a5fa;
+    --chart-5: #f472b6;
+    --sidebar: #0d1320;
+    --sidebar-foreground: #f5f3ee;
+    --sidebar-primary: #ff9933;
+    --sidebar-primary-foreground: #1a1306;
+    --sidebar-accent: #1a2233;
+    --sidebar-accent-foreground: #f5f3ee;
+    --sidebar-border: oklch(1 0 0 / 8%);
+    --sidebar-ring: #ff9933;
+    --saffron: #ff9933;
+    --gold: #ffd700;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+    }
+  body {
+    @apply bg-background text-foreground;
+    }
+  html {
+    @apply font-sans;
+    }
+}
