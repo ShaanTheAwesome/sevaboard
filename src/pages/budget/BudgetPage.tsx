@@ -133,7 +133,7 @@ export function BudgetPage() {
   if (isLoading) {
     return (
       <div>
-        <PageHeader title="Budget & Spending" description="Income, expenses, and totals for the event." />
+        <PageHeader title="Finances" description="Income, expenses, and totals for the event." />
         <div className="grid gap-4 sm:grid-cols-3">
           <Skeleton className="h-24" />
           <Skeleton className="h-24" />
@@ -146,7 +146,7 @@ export function BudgetPage() {
   return (
     <div>
       <PageHeader
-        title="Budget & Spending"
+        title="Finances"
         description="Income, expenses, and totals for the event."
         action={
           <RoleGate allow={["admin", "team_lead"]}>

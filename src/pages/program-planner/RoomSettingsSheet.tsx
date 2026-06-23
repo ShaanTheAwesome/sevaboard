@@ -156,7 +156,7 @@ export function RoomSettingsSheet({ open, onOpenChange, rooms }: RoomSettingsShe
           </SheetDescription>
         </SheetHeader>
 
-        <div className="flex-1 overflow-y-auto px-4">
+        <div className="min-h-0 flex-1 overflow-y-auto px-4">
           {/* Room list */}
           {!showForm && (
             <div className="space-y-2">

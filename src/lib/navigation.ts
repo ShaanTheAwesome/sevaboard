@@ -2,9 +2,10 @@ import {
   LayoutDashboard,
   Music,
   ListChecks,
-  Palette,
+  Megaphone,
   HandHeart,
-  Wallet,
+  DollarSign,
+  Handshake,
   MapPin,
   Users,
   type LucideIcon,
@@ -16,6 +17,7 @@ export interface NavItem {
   to: string
   icon: LucideIcon
   description: string
+  requiresAuth?: boolean
 }
 
 export const NAV_ITEMS: NavItem[] = [
@@ -38,10 +40,10 @@ export const NAV_ITEMS: NavItem[] = [
     description: "Week-by-week prep tasks",
   },
   {
-    label: "Design List",
-    to: "/design-list",
-    icon: Palette,
-    description: "Posters and social media designs",
+    label: "Marketing",
+    to: "/marketing",
+    icon: Megaphone,
+    description: "Campaigns, deadlines, and platforms",
   },
   {
     label: "Seva Roster",
@@ -50,11 +52,17 @@ export const NAV_ITEMS: NavItem[] = [
     description: "Volunteer shifts and assignments",
   },
   {
-    label: "Budget & Spending",
-    shortLabel: "Budget",
-    to: "/budget",
-    icon: Wallet,
+    label: "Finances",
+    to: "/finances",
+    icon: DollarSign,
     description: "Income, expenses, and totals",
+    requiresAuth: true,
+  },
+  {
+    label: "Sponsors",
+    to: "/sponsors",
+    icon: Handshake,
+    description: "Sponsor relationships and contributions",
   },
   {
     label: "Venue Details",
@@ -67,10 +75,11 @@ export const NAV_ITEMS: NavItem[] = [
     to: "/team",
     icon: Users,
     description: "Members, departments, and roles",
+    requiresAuth: true,
   },
 ]
 
-export const BOTTOM_NAV_PRIMARY_PATHS = ["/", "/program-planner", "/planning-timeline", "/budget"]
+export const BOTTOM_NAV_PRIMARY_PATHS = ["/", "/program-planner", "/planning-timeline", "/seva-roster"]
 
 export const BOTTOM_NAV_PRIMARY = NAV_ITEMS.filter((item) =>
   BOTTOM_NAV_PRIMARY_PATHS.includes(item.to)

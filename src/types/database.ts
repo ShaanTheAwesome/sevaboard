@@ -11,6 +11,9 @@ export type TaskStatus = "not_started" | "in_progress" | "done"
 export type DesignStatus = "not_started" | "in_progress" | "done" | "approved"
 export type DesignPlatform = "irl" | "digital"
 export type BudgetType = "income" | "expense"
+export type MarketingPlatform = "social_media" | "print" | "banner" | "video" | "website" | "other"
+export type MarketingStatus = "not_started" | "in_progress" | "done"
+export type SponsorStatus = "lead" | "pending" | "confirmed" | "received"
 
 export type Database = {
   public: {
@@ -253,6 +256,66 @@ export type Database = {
         Update: Partial<Database["public"]["Tables"]["venue_details"]["Insert"]>
         Relationships: []
       }
+      marketing_items: {
+        Row: {
+          id: string
+          title: string
+          description: string | null
+          platform: MarketingPlatform | null
+          deadline: string | null
+          status: MarketingStatus
+          assigned_to: string | null
+          notes: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          title: string
+          description?: string | null
+          platform?: MarketingPlatform | null
+          deadline?: string | null
+          status?: MarketingStatus
+          assigned_to?: string | null
+          notes?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: Partial<Database["public"]["Tables"]["marketing_items"]["Insert"]>
+        Relationships: []
+      }
+      sponsors: {
+        Row: {
+          id: string
+          company_name: string
+          category: string | null
+          contact_name: string | null
+          contact_phone: string | null
+          amount: number | null
+          status: SponsorStatus
+          person_responsible: string | null
+          notes: string | null
+          created_by: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          company_name: string
+          category?: string | null
+          contact_name?: string | null
+          contact_phone?: string | null
+          amount?: number | null
+          status?: SponsorStatus
+          person_responsible?: string | null
+          notes?: string | null
+          created_by?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: Partial<Database["public"]["Tables"]["sponsors"]["Insert"]>
+        Relationships: []
+      }
     }
     Views: Record<string, never>
     Functions: Record<string, never>
@@ -262,6 +325,9 @@ export type Database = {
       design_status: DesignStatus
       design_platform: DesignPlatform
       budget_type: BudgetType
+      marketing_platform: MarketingPlatform
+      marketing_status: MarketingStatus
+      sponsor_status: SponsorStatus
     }
     CompositeTypes: Record<string, never>
   }

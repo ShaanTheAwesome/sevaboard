@@ -121,7 +121,7 @@ export function TaskFormSheet({
           </SheetDescription>
         </SheetHeader>
 
-        <form id="task-form" className="flex-1 px-4" onSubmit={handleSubmit} noValidate>
+        <form id="task-form" className="min-h-0 flex-1 overflow-y-auto px-4" onSubmit={handleSubmit} noValidate>
           <FieldGroup>
             <Field>
               <FieldLabel htmlFor="task-category">Category</FieldLabel>

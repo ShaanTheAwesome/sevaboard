@@ -124,7 +124,7 @@ export function EntryFormSheet({
           </SheetDescription>
         </SheetHeader>
 
-        <form id="entry-form" className="flex-1 px-4" onSubmit={handleSubmit} noValidate>
+        <form id="entry-form" className="min-h-0 flex-1 overflow-y-auto px-4" onSubmit={handleSubmit} noValidate>
           <FieldGroup>
             <Field>
               <FieldLabel>Type</FieldLabel>
