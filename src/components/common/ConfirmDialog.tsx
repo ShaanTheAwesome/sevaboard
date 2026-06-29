@@ -1,3 +1,5 @@
+import { toast } from "sonner"
+import { useIsDemo } from "@/demo/context"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -28,6 +30,17 @@ export function ConfirmDialog({
   onConfirm,
   loading = false,
 }: ConfirmDialogProps) {
+  const isDemo = useIsDemo()
+
+  const handleConfirm = () => {
+    if (isDemo) {
+      toast.info("Demo mode — changes aren't saved")
+      onOpenChange(false)
+      return
+    }
+    onConfirm()
+  }
+
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogContent>
@@ -40,7 +53,7 @@ export function ConfirmDialog({
           <AlertDialogAction
             variant="destructive"
             disabled={loading}
-            onClick={onConfirm}
+            onClick={handleConfirm}
           >
             {loading ? "Deleting..." : confirmLabel}
           </AlertDialogAction>

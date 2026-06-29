@@ -2,6 +2,7 @@ import { useState } from "react"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { toast } from "sonner"
 import { supabase } from "@/lib/supabase"
+import { useDemoGuard } from "@/demo/useDemoGuard"
 import { Button } from "@/components/ui/button"
 import {
   Sheet,
@@ -38,6 +39,7 @@ export function DepartmentFormSheet({
   department,
   profiles,
 }: DepartmentFormSheetProps) {
+  const demoGuard = useDemoGuard()
   const [name, setName] = useState(department?.name ?? "")
   const [description, setDescription] = useState(department?.description ?? "")
   const [leadId, setLeadId] = useState(department?.lead_id ?? NO_LEAD)
@@ -79,6 +81,7 @@ export function DepartmentFormSheet({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
+    if (demoGuard(() => onOpenChange(false))) return
     if (!name.trim()) {
       toast.error("Name is required")
       return

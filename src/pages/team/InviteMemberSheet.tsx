@@ -1,5 +1,6 @@
 import { useState } from "react"
 import { toast } from "sonner"
+import { useDemoGuard } from "@/demo/useDemoGuard"
 import { Button } from "@/components/ui/button"
 import {
   Sheet,
@@ -32,6 +33,7 @@ interface InviteMemberSheetProps {
 }
 
 export function InviteMemberSheet({ open, onOpenChange, departments }: InviteMemberSheetProps) {
+  const demoGuard = useDemoGuard()
   const [email, setEmail] = useState("")
   const [fullName, setFullName] = useState("")
   const [role, setRole] = useState<string>("team_lead")
@@ -58,6 +60,7 @@ export function InviteMemberSheet({ open, onOpenChange, departments }: InviteMem
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
+    if (demoGuard(() => handleOpenChange(false))) return
 
     const trimmedEmail = email.trim()
     if (!EMAIL_REGEX.test(trimmedEmail)) {

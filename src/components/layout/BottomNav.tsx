@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { NavLink, useNavigate } from "react-router-dom"
+import { NavLink, useLocation, useNavigate } from "react-router-dom"
 import { KeyRound, LogIn, LogOut, MoreHorizontal } from "lucide-react"
 import { BOTTOM_NAV_PRIMARY, BOTTOM_NAV_MORE } from "@/lib/navigation"
 import { useAuth } from "@/hooks/useAuth"
@@ -15,14 +15,17 @@ export function BottomNav() {
   const { user, signOut } = useAuth()
   const navigate = useNavigate()
 
+  const location = useLocation()
   const isLoggedIn = !!user
+  const isDemo = location.pathname.startsWith("/demo")
+  const prefix = isDemo ? "/demo" : ""
 
   return (
     <nav className="flex h-16 shrink-0 items-stretch border-t border-border bg-card md:hidden">
       {BOTTOM_NAV_PRIMARY.map((item) => (
         <NavLink
           key={item.to}
-          to={item.to}
+          to={`${prefix}${item.to}`}
           end={item.to === "/"}
           className={({ isActive }) => cn(navLinkClasses, isActive && "text-saffron")}
         >
@@ -41,10 +44,10 @@ export function BottomNav() {
             <SheetTitle>More</SheetTitle>
           </SheetHeader>
           <div className="flex flex-col gap-1 px-4 pb-4">
-            {BOTTOM_NAV_MORE.filter((item) => !item.requiresAuth || isLoggedIn).map((item) => (
+            {BOTTOM_NAV_MORE.filter((item) => isDemo || !item.requiresAuth || isLoggedIn).map((item) => (
               <NavLink
                 key={item.to}
-                to={item.to}
+                to={`${prefix}${item.to}`}
                 onClick={() => setMoreOpen(false)}
                 className={({ isActive }) =>
                   cn(

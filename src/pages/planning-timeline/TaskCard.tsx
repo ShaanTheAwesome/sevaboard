@@ -3,6 +3,7 @@ import { useSortable } from "@dnd-kit/sortable"
 import { CSS } from "@dnd-kit/utilities"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { toast } from "sonner"
+import { useDemoGuard } from "@/demo/useDemoGuard"
 import { GripVertical, Pencil, Trash2 } from "lucide-react"
 import { supabase } from "@/lib/supabase"
 import { ConfirmDialog } from "@/components/common/ConfirmDialog"
@@ -30,6 +31,7 @@ interface TaskCardProps {
 
 export function TaskCard({ task, assignee, canEdit, canUpdateStatus, onEdit }: TaskCardProps) {
   const [confirmOpen, setConfirmOpen] = useState(false)
+  const demoGuard = useDemoGuard()
   const queryClient = useQueryClient()
 
   const {
@@ -74,6 +76,7 @@ export function TaskCard({ task, assignee, canEdit, canUpdateStatus, onEdit }: T
   })
 
   const cycleStatus = () => {
+    if (demoGuard()) return
     const currentIndex = STATUS_ORDER.indexOf(task.status)
     const nextStatus = STATUS_ORDER[(currentIndex + 1) % STATUS_ORDER.length]
     statusMutation.mutate(nextStatus)

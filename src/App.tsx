@@ -1,6 +1,8 @@
 import { Navigate, Route, Routes } from "react-router-dom"
 import { ProtectedRoute } from "@/components/common/ProtectedRoute"
 import { AppShell } from "@/components/layout/AppShell"
+import { DemoProvider } from "@/demo/DemoProvider"
+import { DemoShell } from "@/demo/DemoShell"
 import { LoginPage } from "@/pages/auth/LoginPage"
 import { SetPasswordPage } from "@/pages/auth/SetPasswordPage"
 import { DashboardPage } from "@/pages/dashboard/DashboardPage"
@@ -19,8 +21,30 @@ function App() {
       <Route path="/login" element={<LoginPage />} />
       <Route path="/set-password" element={<SetPasswordPage />} />
 
+      {/* Demo mode — hardcoded sample data, no real DB calls */}
+      <Route
+        path="/demo/*"
+        element={
+          <DemoProvider>
+            <Routes>
+              <Route element={<DemoShell />}>
+                <Route index element={<DashboardPage />} />
+                <Route path="program-planner" element={<ProgramPlannerPage />} />
+                <Route path="planning-timeline" element={<PlanningTimelinePage />} />
+                <Route path="marketing" element={<MarketingPage />} />
+                <Route path="seva-roster" element={<SevaRosterPage />} />
+                <Route path="finances" element={<BudgetPage />} />
+                <Route path="sponsors" element={<SponsorsPage />} />
+                <Route path="venue-details" element={<VenueDetailsPage />} />
+                <Route path="team" element={<TeamPage />} />
+              </Route>
+            </Routes>
+          </DemoProvider>
+        }
+      />
+
+      {/* Real app */}
       <Route element={<AppShell />}>
-        {/* Public pages */}
         <Route path="/" element={<DashboardPage />} />
         <Route path="/program-planner" element={<ProgramPlannerPage />} />
         <Route path="/planning-timeline" element={<PlanningTimelinePage />} />
@@ -29,7 +53,6 @@ function App() {
         <Route path="/sponsors" element={<SponsorsPage />} />
         <Route path="/venue-details" element={<VenueDetailsPage />} />
 
-        {/* Admin/lead only */}
         <Route element={<ProtectedRoute />}>
           <Route path="/finances" element={<BudgetPage />} />
           <Route path="/team" element={<TeamPage />} />

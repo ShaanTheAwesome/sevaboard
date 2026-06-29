@@ -2,6 +2,7 @@ import { useState } from "react"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { toast } from "sonner"
 import { supabase } from "@/lib/supabase"
+import { useDemoGuard } from "@/demo/useDemoGuard"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -52,6 +53,7 @@ export function TaskFormSheet({
   profiles,
   categories,
 }: TaskFormSheetProps) {
+  const demoGuard = useDemoGuard()
   const [category, setCategory] = useState(task?.category ?? "")
   const [description, setDescription] = useState(task?.description ?? "")
   const [weekNumber, setWeekNumber] = useState(String(task?.week_number ?? 16))
@@ -98,6 +100,7 @@ export function TaskFormSheet({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
+    if (demoGuard(() => onOpenChange(false))) return
     if (!category.trim()) {
       toast.error("Category is required")
       return

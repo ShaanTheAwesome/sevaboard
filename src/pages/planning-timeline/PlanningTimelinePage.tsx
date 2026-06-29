@@ -11,6 +11,7 @@ import {
 } from "@dnd-kit/core"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { toast } from "sonner"
+import { useDemoGuard } from "@/demo/useDemoGuard"
 import { differenceInCalendarDays } from "date-fns"
 import { Plus } from "lucide-react"
 import { supabase } from "@/lib/supabase"
@@ -44,6 +45,7 @@ const WEEKS = Array.from({ length: 17 }, (_, i) => 16 - i)
 
 export function PlanningTimelinePage() {
   const { user, profile } = useAuth()
+  const demoGuard = useDemoGuard()
   const { data: tasks, isLoading: tasksLoading } = usePlanningTasks()
   const { data: profiles, isLoading: profilesLoading } = useProfiles()
   const { data: venueDetails } = useVenueDetails()
@@ -158,10 +160,11 @@ export function PlanningTimelinePage() {
 
       const draggedTask = tasks?.find((t) => t.id === active.id)
       if (!draggedTask || draggedTask.week_number === targetWeek) return
+      if (demoGuard()) return
 
       moveMutation.mutate({ taskId: draggedTask.id, newWeek: targetWeek })
     },
-    [tasks, moveMutation]
+    [tasks, moveMutation, demoGuard]
   )
 
   const handleAddTask = () => {

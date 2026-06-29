@@ -2,6 +2,7 @@ import { useState } from "react"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { toast } from "sonner"
 import { supabase } from "@/lib/supabase"
+import { useDemoGuard } from "@/demo/useDemoGuard"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -32,19 +33,23 @@ export function RosterFormSheet({
   existingRoles,
   existingLocations,
 }: RosterFormSheetProps) {
+  const demoGuard = useDemoGuard()
+  const existingSlot = entry?.time_slot?.split("-") ?? []
   const [personName, setPersonName] = useState(entry?.person_name ?? "")
   const [sevaRole, setSevaRole] = useState(entry?.seva_role ?? "")
-  const [timeSlot, setTimeSlot] = useState(entry?.time_slot ?? "")
+  const [startTime, setStartTime] = useState(existingSlot[0]?.trim() ?? "")
+  const [endTime, setEndTime] = useState(existingSlot[1]?.trim() ?? "")
   const [location, setLocation] = useState(entry?.location ?? "")
   const [notes, setNotes] = useState(entry?.notes ?? "")
   const queryClient = useQueryClient()
 
   const mutation = useMutation({
     mutationFn: async () => {
+      const timeSlot = startTime && endTime ? `${startTime}-${endTime}` : startTime || null
       const payload = {
         person_name: personName.trim() || null,
         seva_role: sevaRole.trim(),
-        time_slot: timeSlot.trim() || null,
+        time_slot: timeSlot,
         location: location.trim() || null,
         notes: notes.trim() || null,
       }
@@ -67,6 +72,7 @@ export function RosterFormSheet({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
+    if (demoGuard(() => onOpenChange(false))) return
     if (!sevaRole.trim()) {
       toast.error("Role is required")
       return
@@ -125,15 +131,26 @@ export function RosterFormSheet({
               />
             </Field>
 
-            <Field>
-              <FieldLabel htmlFor="roster-time">Time slot</FieldLabel>
-              <Input
-                id="roster-time"
-                value={timeSlot}
-                onChange={(e) => setTimeSlot(e.target.value)}
-                placeholder="e.g. 2:00 - 4:00 PM"
-              />
-            </Field>
+            <div className="grid grid-cols-2 gap-4">
+              <Field>
+                <FieldLabel htmlFor="roster-start">Start time</FieldLabel>
+                <Input
+                  id="roster-start"
+                  type="time"
+                  value={startTime}
+                  onChange={(e) => setStartTime(e.target.value)}
+                />
+              </Field>
+              <Field>
+                <FieldLabel htmlFor="roster-end">End time</FieldLabel>
+                <Input
+                  id="roster-end"
+                  type="time"
+                  value={endTime}
+                  onChange={(e) => setEndTime(e.target.value)}
+                />
+              </Field>
+            </div>
 
             <Field>
               <FieldLabel htmlFor="roster-location">Location</FieldLabel>

@@ -2,6 +2,7 @@ import { useState } from "react"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { toast } from "sonner"
 import { supabase } from "@/lib/supabase"
+import { useDemoGuard } from "@/demo/useDemoGuard"
 import { cn } from "@/lib/utils"
 import { useAuth } from "@/hooks/useAuth"
 import { Button } from "@/components/ui/button"
@@ -46,6 +47,7 @@ export function EntryFormSheet({
   categories,
 }: EntryFormSheetProps) {
   const { user } = useAuth()
+  const demoGuard = useDemoGuard()
   const [item, setItem] = useState(entry?.item ?? "")
   const [category, setCategory] = useState(entry?.category ?? "")
   const [isTba, setIsTba] = useState(entry ? entry.amount === null : false)
@@ -90,6 +92,7 @@ export function EntryFormSheet({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
+    if (demoGuard(() => onOpenChange(false))) return
     if (!item.trim()) {
       toast.error("Item name is required")
       return

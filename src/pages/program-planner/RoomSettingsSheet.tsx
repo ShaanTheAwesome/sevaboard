@@ -1,6 +1,7 @@
 import { useState } from "react"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { toast } from "sonner"
+import { useDemoGuard } from "@/demo/useDemoGuard"
 import { Plus, Trash2, X } from "lucide-react"
 import { supabase } from "@/lib/supabase"
 import { cn } from "@/lib/utils"
@@ -35,6 +36,7 @@ interface RoomSettingsSheetProps {
 }
 
 export function RoomSettingsSheet({ open, onOpenChange, rooms }: RoomSettingsSheetProps) {
+  const demoGuard = useDemoGuard()
   const [editingRoom, setEditingRoom] = useState<Room | null>(null)
   const [isAdding, setIsAdding] = useState(false)
 
@@ -133,6 +135,7 @@ export function RoomSettingsSheet({ open, onOpenChange, rooms }: RoomSettingsShe
 
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault()
+    if (demoGuard(() => resetForm())) return
     if (!name.trim()) {
       toast.error("Room name is required")
       return

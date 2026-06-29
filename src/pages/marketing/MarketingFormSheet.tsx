@@ -2,6 +2,7 @@ import { useState } from "react"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { toast } from "sonner"
 import { supabase } from "@/lib/supabase"
+import { useDemoGuard } from "@/demo/useDemoGuard"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
@@ -42,6 +43,7 @@ interface MarketingFormSheetProps {
 }
 
 export function MarketingFormSheet({ open, onOpenChange, item, profiles }: MarketingFormSheetProps) {
+  const demoGuard = useDemoGuard()
   const [title, setTitle] = useState(item?.title ?? "")
   const [description, setDescription] = useState(item?.description ?? "")
   const [platform, setPlatform] = useState(item?.platform ?? NO_PLATFORM)
@@ -86,6 +88,7 @@ export function MarketingFormSheet({ open, onOpenChange, item, profiles }: Marke
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
+    if (demoGuard(() => onOpenChange(false))) return
     if (!title.trim()) {
       toast.error("Title is required")
       return

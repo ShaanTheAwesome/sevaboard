@@ -2,6 +2,7 @@ import { useState } from "react"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { toast } from "sonner"
 import { supabase } from "@/lib/supabase"
+import { useDemoGuard } from "@/demo/useDemoGuard"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
@@ -67,6 +68,7 @@ export function EventFormSheet({
   const [description, setDescription] = useState(event?.description ?? "")
   const [confirmOpen, setConfirmOpen] = useState(false)
 
+  const demoGuard = useDemoGuard()
   const queryClient = useQueryClient()
   const selectedRoom = rooms.find((r) => r.id === roomId)
 
@@ -126,6 +128,7 @@ export function EventFormSheet({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
+    if (demoGuard(() => onOpenChange(false))) return
     if (!activityName.trim()) {
       toast.error("Event name is required")
       return

@@ -3,6 +3,7 @@ import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
+import { useDemoGuard } from "@/demo/useDemoGuard"
 import { format, parseISO } from "date-fns"
 import { ExternalLink, MapPin, Pencil } from "lucide-react"
 import { toast } from "sonner"
@@ -84,6 +85,7 @@ function DetailRow({
 
 export function VenueDetailsPage() {
   const { user } = useAuth()
+  const demoGuard = useDemoGuard()
   const queryClient = useQueryClient()
   const { data, isLoading } = useVenueDetails()
   const [isEditing, setIsEditing] = useState(false)
@@ -126,7 +128,10 @@ export function VenueDetailsPage() {
     },
   })
 
-  const onSubmit = handleSubmit((values) => mutation.mutate(values))
+  const onSubmit = handleSubmit((values) => {
+    if (demoGuard(() => setIsEditing(false))) return
+    mutation.mutate(values)
+  })
 
   const handleEdit = () => {
     reset(toFormValues(data))

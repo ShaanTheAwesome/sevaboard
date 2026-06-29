@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { toast } from "sonner"
+import { format } from "date-fns"
 import { HandHeart, MapPin, Pencil, Plus, Trash2, Clock, User } from "lucide-react"
 import { supabase } from "@/lib/supabase"
 import { useAuth } from "@/hooks/useAuth"
@@ -24,6 +25,19 @@ import type { RosterEntry } from "@/types"
 import { RosterFormSheet } from "./RosterFormSheet"
 
 const ALL = "all"
+
+function formatTimeSlot(slot: string | null): string | null {
+  if (!slot) return null
+  const parts = slot.split("-").map((p) => p.trim())
+  const formatted = parts.map((p) => {
+    const [h, m] = p.split(":").map(Number)
+    if (isNaN(h) || isNaN(m)) return p
+    const date = new Date()
+    date.setHours(h, m, 0, 0)
+    return format(date, "h:mm a")
+  })
+  return formatted.join(" – ")
+}
 
 function RosterCard({
   entry,
@@ -67,7 +81,7 @@ function RosterCard({
             {entry.time_slot && (
               <span className="flex items-center gap-1">
                 <Clock className="size-3" />
-                {entry.time_slot}
+                {formatTimeSlot(entry.time_slot)}
               </span>
             )}
             {entry.location && (

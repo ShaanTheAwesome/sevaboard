@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { NavLink, useNavigate } from "react-router-dom"
+import { NavLink, useLocation, useNavigate } from "react-router-dom"
 import { ChevronUp, Flame, KeyRound, LogIn, LogOut, Moon, Sun } from "lucide-react"
 import { useTheme } from "next-themes"
 import { NAV_ITEMS } from "@/lib/navigation"
@@ -16,7 +16,10 @@ export function Sidebar() {
   const navigate = useNavigate()
   const [accountOpen, setAccountOpen] = useState(false)
 
+  const location = useLocation()
   const isLoggedIn = !!user
+  const isDemo = location.pathname.startsWith("/demo")
+  const prefix = isDemo ? "/demo" : ""
 
   return (
     <aside className="hidden w-64 shrink-0 flex-col border-r border-sidebar-border bg-sidebar md:flex">
@@ -41,10 +44,10 @@ export function Sidebar() {
       </div>
 
       <nav className="flex flex-1 flex-col gap-1 px-3">
-        {NAV_ITEMS.filter((item) => !item.requiresAuth || isLoggedIn).map((item) => (
+        {NAV_ITEMS.filter((item) => isDemo || !item.requiresAuth || isLoggedIn).map((item) => (
           <NavLink
             key={item.to}
-            to={item.to}
+            to={`${prefix}${item.to}`}
             end={item.to === "/"}
             className={({ isActive }) =>
               cn(
@@ -58,6 +61,18 @@ export function Sidebar() {
           </NavLink>
         ))}
       </nav>
+
+      {!isDemo && (
+        <div className="px-3 pb-2">
+          <button
+            type="button"
+            onClick={() => navigate("/demo")}
+            className="flex w-full items-center justify-center gap-2 rounded-lg bg-saffron px-3 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-saffron/90 hover:cursor-pointer"
+          >
+            Demo Template
+          </button>
+        </div>
+      )}
 
       {isLoggedIn ? (
         <>

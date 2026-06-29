@@ -2,6 +2,7 @@ import { useState } from "react"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { toast } from "sonner"
 import { supabase } from "@/lib/supabase"
+import { useDemoGuard } from "@/demo/useDemoGuard"
 import { cn } from "@/lib/utils"
 import { useAuth } from "@/hooks/useAuth"
 import { Button } from "@/components/ui/button"
@@ -36,6 +37,7 @@ interface SponsorFormSheetProps {
 
 export function SponsorFormSheet({ open, onOpenChange, sponsor }: SponsorFormSheetProps) {
   const { user } = useAuth()
+  const demoGuard = useDemoGuard()
   const [companyName, setCompanyName] = useState(sponsor?.company_name ?? "")
   const [category, setCategory] = useState(sponsor?.category ?? "")
   const [contactName, setContactName] = useState(sponsor?.contact_name ?? "")
@@ -79,6 +81,7 @@ export function SponsorFormSheet({ open, onOpenChange, sponsor }: SponsorFormShe
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
+    if (demoGuard(() => onOpenChange(false))) return
     if (!companyName.trim()) {
       toast.error("Company name is required")
       return

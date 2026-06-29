@@ -1,6 +1,7 @@
 import { useState } from "react"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { toast } from "sonner"
+import { useDemoGuard } from "@/demo/useDemoGuard"
 import { Pencil, Trash2 } from "lucide-react"
 import { supabase } from "@/lib/supabase"
 import { getInitials } from "@/lib/utils"
@@ -41,6 +42,7 @@ export function MemberRow({ profile, departments, canEdit }: MemberRowProps) {
   const [confirmOpen, setConfirmOpen] = useState(false)
 
   const { user } = useAuth()
+  const demoGuard = useDemoGuard()
   const queryClient = useQueryClient()
   const removeMutation = useRemoveMember()
   const isSelf = user?.id === profile.id
@@ -168,7 +170,7 @@ export function MemberRow({ profile, departments, canEdit }: MemberRowProps) {
           >
             Cancel
           </Button>
-          <Button type="button" onClick={() => mutation.mutate()} disabled={mutation.isPending}>
+          <Button type="button" onClick={() => { if (demoGuard(() => setIsEditing(false))) return; mutation.mutate() }} disabled={mutation.isPending}>
             {mutation.isPending ? "Saving..." : "Save"}
           </Button>
         </CardFooter>
