@@ -1,10 +1,12 @@
 import { useState } from "react"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { toast } from "sonner"
+import { Plus, X } from "lucide-react"
 import { supabase } from "@/lib/supabase"
 import { useDemoGuard } from "@/demo/useDemoGuard"
 import { cn } from "@/lib/utils"
 import { useAuth } from "@/hooks/useAuth"
+import { useSponsorCategories } from "@/hooks/useSponsorCategories"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
@@ -26,6 +28,7 @@ import {
 } from "@/components/ui/sheet"
 import { SPONSOR_STATUS_LABELS } from "@/types"
 import type { Sponsor, SponsorStatus } from "@/types"
+import { SPONSOR_COLORS, fallbackCategoryColor } from "./category-helpers"
 
 const STATUS_ITEMS = Object.entries(SPONSOR_STATUS_LABELS).map(([v, l]) => ({ value: v, label: l }))
 
@@ -38,6 +41,9 @@ interface SponsorFormSheetProps {
 export function SponsorFormSheet({ open, onOpenChange, sponsor }: SponsorFormSheetProps) {
   const { user } = useAuth()
   const demoGuard = useDemoGuard()
+  const { data: categories } = useSponsorCategories()
+  const queryClient = useQueryClient()
+
   const [companyName, setCompanyName] = useState(sponsor?.company_name ?? "")
   const [category, setCategory] = useState(sponsor?.category ?? "")
   const [contactName, setContactName] = useState(sponsor?.contact_name ?? "")
@@ -47,7 +53,10 @@ export function SponsorFormSheet({ open, onOpenChange, sponsor }: SponsorFormShe
   const [status, setStatus] = useState<string>(sponsor?.status ?? "lead")
   const [personResponsible, setPersonResponsible] = useState(sponsor?.person_responsible ?? "")
   const [notes, setNotes] = useState(sponsor?.notes ?? "")
-  const queryClient = useQueryClient()
+
+  const [showNewCat, setShowNewCat] = useState(false)
+  const [newCatName, setNewCatName] = useState("")
+  const [newCatColor, setNewCatColor] = useState("blue")
 
   const mutation = useMutation({
     mutationFn: async () => {
@@ -79,6 +88,36 @@ export function SponsorFormSheet({ open, onOpenChange, sponsor }: SponsorFormShe
     onError: (error) => toast.error(error.message),
   })
 
+  const createCatMutation = useMutation({
+    mutationFn: async () => {
+      const { data, error } = await supabase
+        .from("sponsor_categories")
+        .insert({ name: newCatName.trim(), color: newCatColor })
+        .select()
+        .single()
+      if (error) throw error
+      return data
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["sponsor_categories"] })
+      setCategory(data.name)
+      setNewCatName("")
+      setNewCatColor("blue")
+      setShowNewCat(false)
+      toast.success("Category created")
+    },
+    onError: (error) => toast.error(error.message),
+  })
+
+  const handleAddCategory = () => {
+    if (demoGuard()) return
+    if (!newCatName.trim()) {
+      toast.error("Category name is required")
+      return
+    }
+    createCatMutation.mutate()
+  }
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     if (demoGuard(() => onOpenChange(false))) return
@@ -95,6 +134,8 @@ export function SponsorFormSheet({ open, onOpenChange, sponsor }: SponsorFormShe
     }
     mutation.mutate()
   }
+
+  const knownCategory = categories?.find((c) => c.name === category)
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
@@ -119,13 +160,114 @@ export function SponsorFormSheet({ open, onOpenChange, sponsor }: SponsorFormShe
             </Field>
 
             <Field>
-              <FieldLabel htmlFor="sponsor-category">Category</FieldLabel>
-              <Input
-                id="sponsor-category"
-                value={category}
-                onChange={(e) => setCategory(e.target.value)}
-                placeholder="e.g. Food, Clothes, etc"
-              />
+              <FieldLabel>Category</FieldLabel>
+
+              {/* Known categories as chips */}
+              {categories && categories.length > 0 && (
+                <div className="flex flex-wrap gap-1.5">
+                  {categories.map((cat) => {
+                    const colorEntry = SPONSOR_COLORS.find((c) => c.value === cat.color) ?? SPONSOR_COLORS[0]
+                    const isSelected = category === cat.name
+                    return (
+                      <button
+                        key={cat.id}
+                        type="button"
+                        onClick={() => setCategory(isSelected ? "" : cat.name)}
+                        className={cn(
+                          "rounded-md border px-2.5 py-1 text-xs font-medium transition-colors hover:cursor-pointer",
+                          isSelected
+                            ? colorEntry.badge
+                            : "border-border text-muted-foreground hover:border-foreground/30 hover:text-foreground"
+                        )}
+                      >
+                        {cat.name}
+                      </button>
+                    )
+                  })}
+                </div>
+              )}
+
+              {/* Unrecognised category (legacy / not yet in sponsor_categories) */}
+              {category && !knownCategory && (
+                <div className="flex items-center gap-1.5">
+                  <span
+                    className={cn(
+                      "rounded-md border px-2.5 py-1 text-xs font-medium",
+                      fallbackCategoryColor(category)
+                    )}
+                  >
+                    {category}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setCategory("")}
+                    className="text-muted-foreground hover:text-foreground"
+                    aria-label="Clear category"
+                  >
+                    <X className="size-3" />
+                  </button>
+                </div>
+              )}
+
+              {/* New category inline form */}
+              {showNewCat ? (
+                <div className="space-y-2 rounded-lg border border-border p-3">
+                  <Input
+                    value={newCatName}
+                    onChange={(e) => setNewCatName(e.target.value)}
+                    placeholder="Category name"
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") { e.preventDefault(); handleAddCategory() }
+                    }}
+                  />
+                  <div className="flex flex-wrap gap-2">
+                    {SPONSOR_COLORS.map((c) => (
+                      <button
+                        key={c.value}
+                        type="button"
+                        onClick={() => setNewCatColor(c.value)}
+                        className={cn(
+                          "size-7 rounded-full transition-all",
+                          c.dot,
+                          newCatColor === c.value
+                            ? "ring-2 ring-foreground ring-offset-2 ring-offset-background"
+                            : "opacity-50 hover:opacity-75"
+                        )}
+                        aria-label={c.label}
+                      />
+                    ))}
+                  </div>
+                  <div className="flex gap-2">
+                    <Button
+                      type="button"
+                      size="sm"
+                      onClick={handleAddCategory}
+                      disabled={createCatMutation.isPending}
+                    >
+                      {createCatMutation.isPending ? "Adding..." : "Add"}
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => { setShowNewCat(false); setNewCatName(""); setNewCatColor("blue") }}
+                    >
+                      Cancel
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="w-full"
+                  onClick={() => setShowNewCat(true)}
+                >
+                  <Plus />
+                  New category
+                </Button>
+              )}
             </Field>
 
             <div className="grid grid-cols-2 gap-4">

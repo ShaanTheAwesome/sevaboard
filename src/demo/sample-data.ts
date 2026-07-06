@@ -7,6 +7,7 @@ import type {
   BudgetEntry,
   MarketingItem,
   Sponsor,
+  SponsorCategory,
   RosterEntry,
   VenueDetails,
 } from "@/types"
@@ -84,6 +85,12 @@ export const DEMO_MARKETING_ITEMS: MarketingItem[] = [
   { id: "mi4", title: "Event banner for entrance", description: "Large pull-up banner for the venue foyer", platform: "banner", deadline: "2026-07-10", status: "not_started", assigned_to: "d2", notes: null, created_at: now, updated_at: now },
   { id: "mi5", title: "Reminder email blast", description: "Send to mailing list 1 week before event", platform: "website", deadline: "2026-07-20", status: "not_started", assigned_to: "d2", notes: null, created_at: now, updated_at: now },
   { id: "mi6", title: "Event teaser video", description: "30-second promo video for Instagram Reels", platform: "video", deadline: "2026-07-01", status: "not_started", assigned_to: null, notes: "Need someone with video editing skills", created_at: now, updated_at: now },
+]
+
+export const DEMO_SPONSOR_CATEGORIES: SponsorCategory[] = [
+  { id: "sc1", name: "Food", color: "amber", created_at: now },
+  { id: "sc2", name: "Decorations", color: "emerald", created_at: now },
+  { id: "sc3", name: "General", color: "blue", created_at: now },
 ]
 
 export const DEMO_SPONSORS: Sponsor[] = [

@@ -11,6 +11,7 @@ import {
   DEMO_BUDGET_ENTRIES,
   DEMO_MARKETING_ITEMS,
   DEMO_SPONSORS,
+  DEMO_SPONSOR_CATEGORIES,
   DEMO_ROSTER_ENTRIES,
   DEMO_VENUE_DETAILS,
 } from "./sample-data"
@@ -43,6 +44,7 @@ export function DemoProvider({ children }: { children: ReactNode }) {
     client.setQueryData(["budget_entries"], DEMO_BUDGET_ENTRIES)
     client.setQueryData(["marketing_items"], DEMO_MARKETING_ITEMS)
     client.setQueryData(["sponsors"], DEMO_SPONSORS)
+    client.setQueryData(["sponsor_categories"], DEMO_SPONSOR_CATEGORIES)
     client.setQueryData(["roster_entries"], DEMO_ROSTER_ENTRIES)
     client.setQueryData(["venue_details"], DEMO_VENUE_DETAILS)
 

@@ -225,20 +225,12 @@ user's request.
 - Removed default Vite template cruft (`App.css`, `src/assets`, demo
   markup)
 
-### Next steps
+### Next steps (Session 1)
 
 - ~~Manual: follow `SUPABASE_SETUP.md` to create a Supabase project, run the
-  schema/seed SQL, and create the first admin user~~ — **done**. Real
-  Supabase project is live, `.env` has real credentials, login verified for
-  both an admin account (`admin@example.com`) and a member account
-  (`member@example.com`)
-- ~~Run `npm run dev` / `npm run build` / `npm run lint` to verify the
-  scaffold~~ — **done**
-- Build out each module fully, one at a time (starting with whichever the
-  user prioritizes) — full CRUD, realtime sync, charts, filters, Team &
-  Roles admin UI for managing departments/roles
-- Remaining modules to build: Program Planner, Planning Timeline, Design
-  List, Seva Roster, Budget & Spending, Team & Roles
+  schema/seed SQL, and create the first admin user~~ — **done**
+- ~~Build out each module fully~~ — **done** (all modules complete as of
+  Session 5)
 
 ### Session 2 — Venue Details module
 
@@ -343,5 +335,169 @@ user's request.
     no more avatar/dropdown.
   - `BottomNav` "More" sheet now includes "Change password" for mobile
     users.
-- Remaining modules to build: Program Planner, Planning Timeline, Design
-  List, Seva Roster, Budget & Spending.
+### Session 5 — All modules built, public access, demo mode
+
+- **Planning Timeline** — drag-and-drop week-by-week bulletin board:
+  - 17 week columns (16 → 0) in a horizontally-scrollable board.
+  - Auto-calculates current week from event date, auto-scrolls to it,
+    and tags it with a "Now" badge.
+  - Task cards with description, category badge, clickable status toggle
+    (cycles Not Started → In Progress → Done), and assignee.
+  - Drag and drop between week columns to reassign weeks.
+  - Filter bar: category, status, assignee. Category chip picker in the
+    add/edit form with autocomplete from existing categories.
+  - Dashboard "Upcoming Tasks" widget shows current-week tasks.
+  - Installed `@dnd-kit/core`, `@dnd-kit/sortable`, `@dnd-kit/utilities`.
+
+- **Budget & Spending → renamed to Finances**:
+  - Summary cards: Total Income, Total Expenses, Balance, Pending (TBA).
+  - Two-column layout: Income (left) + Expenses (right), stacked on
+    mobile. Each column has its own subtotal and "Add" button.
+  - Filters: category, type (income/expense), sort (newest/oldest/
+    highest/lowest). Category chip picker in the form.
+  - TBA support: toggle on the form sets amount to null. TBA entries
+    show a saffron badge and are excluded from totals. A "Pending" card
+    appears in the summary when TBA entries exist.
+  - Migration: `001_budget_tba.sql` (amount nullable).
+
+- **Program Planner** — time-grid schedule:
+  - Side-by-side room columns with configurable sub-columns (e.g. High
+    Energy has "Event" + "Stage", CM Room + Bhakti has "Half 1" +
+    "Half 2"). Each room has a distinct color accent.
+  - 15-minute time slots from 2:00 PM to 6:00 PM. Events span their
+    correct number of rows. Click an empty cell to add, click an event
+    to edit.
+  - Room Settings sheet: add/edit/delete rooms, configure columns and
+    colors.
+  - Migration: `002_program_planner.sql` (rooms: columns + color;
+    program_items: column_name).
+
+- **Marketing** (new module, replaced Design List):
+  - Activity cards: title, description, platform badge (Social Media /
+    Print / Banner / Video / Website / Other), deadline (highlights
+    overdue in red), status, assignee, notes.
+  - Filters: status, platform.
+  - New `marketing_items` table + `marketing_platform` / `marketing_status`
+    enums.
+
+- **Sponsors** (new module):
+  - Full relationship tracking: company name, category, contact name,
+    phone, amount (or TBA), status pipeline (Lead → Pending → Confirmed
+    → Received), person responsible, notes.
+  - Summary bar: confirmed total, pending count, total sponsors.
+  - Contact details only visible to logged-in admins/leads.
+  - New `sponsors` table + `sponsor_status` enum.
+  - Migration: `004_marketing_sponsors.sql`.
+
+- **Seva Roster** — volunteer shift assignments:
+  - Entries grouped by role (e.g. "Stage Manager", "Kitchen Lead") with
+    count badges.
+  - Each card: role, person name, time slot (formatted as
+    "2:00 PM – 4:00 PM"), location, notes.
+  - Two native time pickers (start/end) in the form, consistent display
+    format.
+  - Role and location chip pickers in the form.
+  - Filters: role, location.
+
+- **Public access model** — site is now publicly viewable:
+  - All pages except Finances and Team & Roles are accessible without
+    login. `ProtectedRoute` wraps only those two.
+  - RLS SELECT policies changed from `TO authenticated` to
+    `TO anon, authenticated` on all tables.
+  - Migration: `003_public_read.sql`.
+  - Sidebar shows "Log in" button for unauthenticated visitors.
+  - Nav items with `requiresAuth: true` hidden from logged-out users.
+  - Team & Roles: public visitors see name + role only (no email/phone).
+  - Idle timeout only active when logged in.
+  - Roles simplified: only Admin and Team Lead are assignable. Member /
+    Volunteer enum values remain in DB but are not shown in UI selectors.
+
+- **Themed confirm dialogs** — replaced all `window.confirm()` calls with
+  a reusable `ConfirmDialog` component using shadcn `AlertDialog`. Dimmed
+  backdrop, styled card, Cancel/Delete buttons. Used in: MemberRow,
+  DepartmentCard, TaskCard, EntryCard, MarketingCard, SponsorCard,
+  RosterCard, EventFormSheet.
+
+- **Sheet scrolling fix** — all form sheets now have a scrollable body
+  with pinned header and footer (Save/Cancel always visible).
+
+- **Demo mode** (`/demo`):
+  - Separate route tree with hardcoded sample data for all 9 modules.
+  - Pre-seeded TanStack Query cache with `staleTime: Infinity`, fake
+    admin auth context. No Supabase calls in demo mode.
+  - All forms and buttons are interactive but guarded — clicking Save
+    shows "Demo mode — changes aren't saved" instead of hitting the DB.
+  - Saffron "Demo Template" button in the sidebar. Demo banner at the
+    top with centered text and "Exit demo" outline button.
+  - Files: `src/demo/` (sample-data, context, DemoProvider, DemoBanner,
+    DemoShell, useDemoGuard).
+
+- **All modules are now complete.** Remaining optional work: realtime
+  subscriptions, budget charts, and documentation updates.
+
+### Session 6 — UX polish: Program Planner layout, Sponsor categories, Planning Timeline defaults, email invite template
+
+- **Program Planner — room card separation** (`src/pages/program-planner/ScheduleGrid.tsx`):
+  - Rooms were rendering as a continuous flat strip. Added `gap-3` on the
+    outer flex container so rooms visually separate.
+  - Each room `<div>` now has `rounded-lg border border-border overflow-hidden`,
+    giving each room a distinct card boundary.
+  - Removed the `border-r` on room headers (the outer card border replaces it).
+  - Sub-column internal dividers softened from `border-border` to `border-border/50`.
+  - `minWidth` calculation updated to account for gap pixels:
+    `80 + totalColumns * 150 + rooms.length * 12`.
+
+- **Sponsor categories — color-coded with per-category counts**:
+  - **New migration** `supabase/migrations/005_sponsor_categories.sql`:
+    creates `sponsor_categories(id, name text UNIQUE, color text DEFAULT 'blue',
+    created_at)`. RLS: anon + authenticated SELECT; admin/lead INSERT/UPDATE/DELETE.
+  - **New types**: `sponsor_categories` table entry added to `src/types/database.ts`;
+    `SponsorCategory` re-exported from `src/types/index.ts`.
+  - **New hook** `src/hooks/useSponsorCategories.ts`: TanStack Query hook that
+    fetches all sponsor categories ordered by name (`queryKey: ["sponsor_categories"]`).
+  - **New helper** `src/pages/sponsors/category-helpers.ts`: exports `SPONSOR_COLORS`
+    (6 named color options with dot/badge CSS classes) and `fallbackCategoryColor()`
+    (hash-based color for categories not yet in the DB table).
+  - **`SponsorFormSheet.tsx`** (rewritten): category field replaced with:
+    - Colored chip buttons for each known category (click to select/deselect).
+    - A plain chip with an ×-clear for any unrecognised legacy category value.
+    - "New category" inline form (name input + circular color dot picker +
+      Add/Cancel), identical UX pattern to Program Planner's room color picker.
+    - `createCatMutation` inserts into `sponsor_categories`, then selects and
+      sets the new category.
+  - **`SponsorsPage.tsx`** (rewritten): replaced hardcoded `CATEGORY_PALETTE`
+    with a `getCategoryColor` useMemo that builds a Map from the DB query,
+    with hash-based fallback. Summary bar now shows **per-category count pills**
+    (e.g. "Food 2") coloured with `getCategoryColor`, in addition to the
+    existing confirmed/pending/total figures.
+  - **Demo mode**: `DEMO_SPONSOR_CATEGORIES` added to `src/demo/sample-data.ts`
+    (Food/amber, Decorations/emerald, General/blue); pre-seeded in
+    `DemoProvider.tsx` under `queryKey: ["sponsor_categories"]`.
+
+- **Planning Timeline — task form defaults to current week** (`src/pages/planning-timeline/TaskFormSheet.tsx`):
+  - New tasks now default `weekNumber` to the current week (computed from
+    `venueDetails.event_date`) instead of hardcoded 16.
+  - Added `useVenueDetails` import and a `currentWeek` useMemo using
+    `differenceInCalendarDays` from `date-fns`:
+    `Math.min(16, Math.floor(daysLeft / 7))`. Falls back to 16 if no event
+    date is set.
+  - TanStack Query returns cached `venueDetails` synchronously on first
+    render, so no `useEffect` is needed — the `useState` initializer receives
+    the correct value.
+
+- **Supabase invite email template**: provided a custom HTML email template
+  for Supabase Authentication → Email Templates → Invite User. Matches
+  SevaBoard branding (saffron `#FF9933`, dark navy header, CTA button, plain
+  fallback link). User pastes this directly into the Supabase dashboard —
+  no code change in this repo.
+
+### Pending / not yet implemented
+
+- **Program Planner end-time default**: when clicking an empty cell to add
+  an event, end time should auto-set to start + 15 minutes (currently
+  defaults to a hardcoded value regardless of start time). Not yet done.
+- **Marketing external link**: friend built a Vercel.app marketing schedule
+  page; a hyperlink/button should be added to the Marketing module. Waiting
+  for the URL.
+- **Finances — forecasted budget**: friend requested a forecasted budget
+  figure from their Google Sheets. Still being clarified.

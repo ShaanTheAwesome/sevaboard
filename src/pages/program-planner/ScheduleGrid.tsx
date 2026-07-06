@@ -51,7 +51,7 @@ export function ScheduleGrid({
 
   return (
     <div className="overflow-x-auto rounded-lg border border-border">
-      <div className="flex" style={{ minWidth: 80 + totalColumns * 150 }}>
+      <div className="flex gap-3" style={{ minWidth: 80 + totalColumns * 150 + rooms.length * 12 }}>
         {/* Time labels column */}
         <div className="sticky left-0 z-20 w-20 shrink-0 bg-background">
           {/* Header spacer */}
@@ -77,11 +77,11 @@ export function ScheduleGrid({
           const roomColumns = room.columns as string[]
           const colors = ROOM_COLORS[room.color] ?? ROOM_COLORS.blue
           return (
-            <div key={room.id} className="flex flex-col" style={{ minWidth: roomColumns.length * 150 }}>
+            <div key={room.id} className="flex flex-col overflow-hidden rounded-lg border border-border" style={{ minWidth: roomColumns.length * 150 }}>
               {/* Room header */}
               <div
                 className={cn(
-                  "flex flex-col border-b border-r border-border",
+                  "flex flex-col border-b border-border",
                   colors.header
                 )}
               >
@@ -108,7 +108,7 @@ export function ScheduleGrid({
                     <div
                       key={col}
                       className={cn(
-                        "relative flex-1 border-r border-border last:border-r-0",
+                        "relative flex-1 border-r border-border/50 last:border-r-0",
                         colors.bg
                       )}
                       style={{ height: gridHeight, minWidth: 150 }}

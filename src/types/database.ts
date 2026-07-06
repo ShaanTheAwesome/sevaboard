@@ -284,6 +284,22 @@ export type Database = {
         Update: Partial<Database["public"]["Tables"]["marketing_items"]["Insert"]>
         Relationships: []
       }
+      sponsor_categories: {
+        Row: {
+          id: string
+          name: string
+          color: string
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          name: string
+          color?: string
+          created_at?: string
+        }
+        Update: Partial<Database["public"]["Tables"]["sponsor_categories"]["Insert"]>
+        Relationships: []
+      }
       sponsors: {
         Row: {
           id: string

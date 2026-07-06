@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useMemo, useState } from "react"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { toast } from "sonner"
 import { supabase } from "@/lib/supabase"
@@ -25,6 +25,8 @@ import {
 } from "@/components/ui/sheet"
 import { STATUS_LABELS } from "@/types"
 import type { PlanningTask, Profile, TaskStatus } from "@/types"
+import { useVenueDetails } from "@/hooks/useVenueDetails"
+import { differenceInCalendarDays } from "date-fns"
 
 const NO_ASSIGNEE = "none"
 
@@ -56,7 +58,20 @@ export function TaskFormSheet({
   const demoGuard = useDemoGuard()
   const [category, setCategory] = useState(task?.category ?? "")
   const [description, setDescription] = useState(task?.description ?? "")
-  const [weekNumber, setWeekNumber] = useState(String(task?.week_number ?? 16))
+
+  const {data: venueDetails} = useVenueDetails();
+
+  const currentWeek = useMemo(() => {
+    if (!venueDetails?.event_date) return 16
+    const daysLeft = differenceInCalendarDays(
+      new Date(venueDetails.event_date),
+      new Date()
+    )
+    if (daysLeft <= 0) return 0
+    return Math.min(16, Math.floor(daysLeft / 7))
+  }, [venueDetails])
+
+  const [weekNumber, setWeekNumber] = useState(String(task?.week_number ?? currentWeek ?? 16))
   const [assignedTo, setAssignedTo] = useState(task?.assigned_to ?? NO_ASSIGNEE)
   const [status, setStatus] = useState<string>(task?.status ?? "not_started")
   const queryClient = useQueryClient()

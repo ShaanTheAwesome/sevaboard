@@ -23,6 +23,7 @@ export type BudgetEntry = Database["public"]["Tables"]["budget_entries"]["Row"]
 export type VenueDetails = Database["public"]["Tables"]["venue_details"]["Row"]
 export type MarketingItem = Database["public"]["Tables"]["marketing_items"]["Row"]
 export type Sponsor = Database["public"]["Tables"]["sponsors"]["Row"]
+export type SponsorCategory = Database["public"]["Tables"]["sponsor_categories"]["Row"]
 
 export const ROLE_LABELS: Record<UserRole, string> = {
   admin: "Admin",
