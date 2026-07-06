@@ -3,7 +3,7 @@ import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
 import { Navigate, useNavigate } from "react-router-dom"
-import { Flame } from "lucide-react"
+import { Eye, EyeOff, Flame } from "lucide-react"
 import { toast } from "sonner"
 import { supabase } from "@/lib/supabase"
 import { useAuth } from "@/hooks/useAuth"
@@ -34,6 +34,7 @@ export function SetPasswordPage() {
   const { user, loading } = useAuth()
   const navigate = useNavigate()
   const [authError, setAuthError] = useState<string | null>(null)
+  const [showPasswords, setShowPasswords] = useState(false)
 
   const {
     register,
@@ -83,25 +84,47 @@ export function SetPasswordPage() {
             <FieldGroup>
               <Field data-invalid={!!errors.password}>
                 <FieldLabel htmlFor="password">New password</FieldLabel>
-                <Input
-                  id="password"
-                  type="password"
-                  autoComplete="new-password"
-                  aria-invalid={!!errors.password}
-                  {...register("password")}
-                />
+                <div className="relative">
+                  <Input
+                    id="password"
+                    type={showPasswords ? "text" : "password"}
+                    autoComplete="new-password"
+                    aria-invalid={!!errors.password}
+                    className="pr-10"
+                    {...register("password")}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPasswords((v) => !v)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                    aria-label={showPasswords ? "Hide passwords" : "Show passwords"}
+                  >
+                    {showPasswords ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+                  </button>
+                </div>
                 <FieldError errors={[errors.password]} />
               </Field>
 
               <Field data-invalid={!!errors.confirmPassword}>
                 <FieldLabel htmlFor="confirmPassword">Confirm password</FieldLabel>
-                <Input
-                  id="confirmPassword"
-                  type="password"
-                  autoComplete="new-password"
-                  aria-invalid={!!errors.confirmPassword}
-                  {...register("confirmPassword")}
-                />
+                <div className="relative">
+                  <Input
+                    id="confirmPassword"
+                    type={showPasswords ? "text" : "password"}
+                    autoComplete="new-password"
+                    aria-invalid={!!errors.confirmPassword}
+                    className="pr-10"
+                    {...register("confirmPassword")}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPasswords((v) => !v)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                    aria-label={showPasswords ? "Hide passwords" : "Show passwords"}
+                  >
+                    {showPasswords ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+                  </button>
+                </div>
                 <FieldError errors={[errors.confirmPassword]} />
               </Field>
 
