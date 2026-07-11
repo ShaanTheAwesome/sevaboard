@@ -14,6 +14,7 @@ import {
   DEMO_SPONSOR_CATEGORIES,
   DEMO_ROSTER_ENTRIES,
   DEMO_VENUE_DETAILS,
+  DEMO_VENUE_PHOTOS,
 } from "./sample-data"
 import type { User } from "@supabase/supabase-js"
 
@@ -47,6 +48,7 @@ export function DemoProvider({ children }: { children: ReactNode }) {
     client.setQueryData(["sponsor_categories"], DEMO_SPONSOR_CATEGORIES)
     client.setQueryData(["roster_entries"], DEMO_ROSTER_ENTRIES)
     client.setQueryData(["venue_details"], DEMO_VENUE_DETAILS)
+    client.setQueryData(["venue_photos"], DEMO_VENUE_PHOTOS)
 
     return client
   }, [])

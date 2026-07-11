@@ -206,6 +206,7 @@ export type Database = {
           item: string
           category: string
           amount: number | null
+          forecasted_amount: number | null
           entry_date: string
           notes: string | null
           type: BudgetType
@@ -218,6 +219,7 @@ export type Database = {
           item: string
           category: string
           amount?: number | null
+          forecasted_amount?: number | null
           entry_date: string
           notes?: string | null
           type: BudgetType
@@ -254,6 +256,26 @@ export type Database = {
           updated_at?: string
         }
         Update: Partial<Database["public"]["Tables"]["venue_details"]["Insert"]>
+        Relationships: []
+      }
+      venue_photos: {
+        Row: {
+          id: string
+          label: string | null
+          image_path: string
+          sort_order: number
+          created_by: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          label?: string | null
+          image_path: string
+          sort_order?: number
+          created_by?: string | null
+          created_at?: string
+        }
+        Update: Partial<Database["public"]["Tables"]["venue_photos"]["Insert"]>
         Relationships: []
       }
       marketing_items: {

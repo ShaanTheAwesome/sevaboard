@@ -48,6 +48,7 @@ Enforced at **two layers**:
 | `budget_entries` | anon + authenticated | admin or team_lead |
 | `marketing_items` | anon + authenticated | admin or team_lead |
 | `sponsors` | anon + authenticated | admin or team_lead |
+| `venue_photos` (table + `venue-photos` Storage bucket) | anon + authenticated | admin or team_lead |
 
 - **`prevent_self_role_escalation`** trigger: silently reverts `role`/
   `department_id` changes on own profile unless `is_admin()`.
@@ -83,6 +84,11 @@ Enforced at **two layers**:
   (`invite-member`, `remove-member`). Confirmed by grep: zero references
   in `src/`.
 - `.env` is gitignored.
+- **Storage uploads** (`venue-photos` bucket) go through the same anon key
+  + RLS model as everything else — Storage policies on `storage.objects`
+  (scoped to `bucket_id = 'venue-photos'`) restrict insert/update/delete to
+  `is_admin_or_lead()`, so no elevated key is needed for the browser to
+  upload directly.
 
 ## 4. Edge Functions
 

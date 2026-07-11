@@ -151,6 +151,7 @@ truth. Run [`supabase/seed.sql`](../supabase/seed.sql) afterward.
 | `roster_entries` | Seva (volunteer) shift assignments |
 | `budget_entries` | Income/expense line items |
 | `venue_details` | Single-row table (`id = 1`) for venue/event info |
+| `venue_photos` | Venue map/layout gallery photos (metadata; files live in the `venue-photos` Storage bucket) |
 
 ### Realtime
 
@@ -491,13 +492,79 @@ user's request.
   fallback link). User pastes this directly into the Supabase dashboard —
   no code change in this repo.
 
+### Session 7 — Forecasted budget
+
+- **Finances — forecasted amount per entry**: organizer requested a
+  "forecasted" figure per budget line (matching their existing Excel sheet),
+  clarified to mean a best-guess estimate of what the item will cost/bring
+  in, tracked separately from the confirmed `amount`/TBA field.
+  - Migration `006_budget_forecasted.sql`: adds nullable
+    `budget_entries.forecasted_amount numeric(10, 2)`. No RLS changes —
+    inherits the existing `budget_entries` read/write policies.
+  - `EntryFormSheet.tsx`: new optional "Forecasted amount ($)" input,
+    independent of the Amount/TBA toggle — can be set whether or not the
+    actual amount is known yet.
+  - `EntryCard.tsx`: shows a muted "Forecast: $X" line when
+    `forecasted_amount` is set (most useful on TBA entries, but shown
+    whenever present).
+  - `BudgetPage.tsx`: added a second, visually distinct (dashed border,
+    muted color) row of summary cards — Forecasted Income / Forecasted
+    Expenses / Forecasted Balance — shown only when at least one entry has
+    a forecast set. Per-entry value used: `forecasted_amount ?? amount`
+    (falls back to the real amount for confirmed entries, excluded from the
+    total if neither is set) — so the forecasted totals represent a full
+    projected budget, not just the explicitly-forecasted subset. Existing
+    "Total Income/Expenses/Balance" cards are unchanged (actual, confirmed
+    money only).
+  - Demo mode: added `forecasted_amount` values to a couple of
+    `DEMO_BUDGET_ENTRIES` (including the TBA "Prasad catering" entry) to
+    exercise the feature in `/demo`.
+
+### Session 8 — Program Planner end-time default, Venue Details photo gallery
+
+- **Program Planner — end-time default fix** (`EventFormSheet.tsx`):
+  adding an event from a clicked empty cell was always defaulting End time
+  to a hardcoded `14:15` regardless of the clicked start time. Now defaults
+  to start + 15 minutes (one slot), clamped to the schedule's end
+  (`SCHEDULE_END`, 6:00 PM), reusing the existing `schedule-helpers.ts`
+  time utilities. Also added light live-sync: while adding a new event, if
+  the user changes Start time before touching End time themselves, End
+  keeps following (start + 15 min); once they pick an End value directly,
+  it stops auto-following. Editing an existing event is unaffected — its
+  saved end time is never overwritten by this logic.
+
+- **Venue Details — photo gallery**: organizer wants 2–4 venue map/layout
+  images on the Venue Details page (one per room/area — e.g. High Energy,
+  Bhakti, Corridor), publicly viewable like the rest of the page, with
+  drag-to-reorder.
+  - Migration `007_venue_photos.sql`: new `venue_photos` table (`id`,
+    `label`, `image_path`, `sort_order`, `created_by`, `created_at`) with
+    the standard public-read / admin-or-lead-write RLS pair. Also creates
+    the **first Supabase Storage bucket used in this project**,
+    `venue-photos` (public read), with matching storage policies — anyone
+    can view the files, only `is_admin_or_lead()` can insert/update/delete.
+  - `useVenuePhotos.ts` hook, ordered by `sort_order` then `created_at`.
+  - `VenuePhotoGallery.tsx` (`src/pages/venue-details/`): grid of photo
+    tiles rendered on `VenueDetailsPage.tsx` regardless of whether the main
+    venue-details form is in edit mode. Admin/lead see an "Add photo" file
+    picker with an optional label input (uploads to Storage, then inserts
+    a `venue_photos` row), a delete button per tile (removes both the
+    Storage object and the row), and a drag handle for reordering — built
+    with `@dnd-kit/sortable` (`rectSortingStrategy`), following the same
+    `useSortable`/grip-handle pattern already used by `TaskCard.tsx` in
+    Planning Timeline. Reordering persists by updating `sort_order` on all
+    affected rows and optimistically updates the query cache so the grid
+    doesn't flash/revert while the request is in flight.
+  - Upload guards: client-side file-type check (`image/*`) and an 8MB size
+    cap before ever hitting Storage.
+  - Demo mode: `DEMO_VENUE_PHOTOS` (three placeholder images, one per
+    room) added to `sample-data.ts` and pre-seeded in `DemoProvider.tsx`
+    under `queryKey: ["venue_photos"]`; upload/delete/reorder are all
+    guarded by the existing `useDemoGuard`/`ConfirmDialog` demo-mode
+    pattern.
+
 ### Pending / not yet implemented
 
-- **Program Planner end-time default**: when clicking an empty cell to add
-  an event, end time should auto-set to start + 15 minutes (currently
-  defaults to a hardcoded value regardless of start time). Not yet done.
 - **Marketing external link**: friend built a Vercel.app marketing schedule
   page; a hyperlink/button should be added to the Marketing module. Waiting
   for the URL.
-- **Finances — forecasted budget**: friend requested a forecasted budget
-  figure from their Google Sheets. Still being clarified.

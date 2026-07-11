@@ -64,6 +64,15 @@ export function EntryCard({ entry, canEdit, onEdit }: EntryCardProps) {
               {format(parseISO(entry.entry_date), "d MMM yyyy")}
             </span>
           </div>
+          {entry.forecasted_amount != null && (
+            <p className="text-xs text-muted-foreground">
+              Forecast: $
+              {Number(entry.forecasted_amount).toLocaleString("en-AU", {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              })}
+            </p>
+          )}
           {entry.notes && (
             <p className="text-xs text-muted-foreground">{entry.notes}</p>
           )}

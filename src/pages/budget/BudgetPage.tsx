@@ -108,6 +108,31 @@ export function BudgetPage() {
 
   const balance = totalIncome - totalExpenses
 
+  const forecastValue = (e: BudgetEntry) => e.forecasted_amount ?? e.amount
+
+  const hasForecasts = useMemo(
+    () => (entries ?? []).some((e) => e.forecasted_amount != null),
+    [entries]
+  )
+
+  const forecastedIncome = useMemo(
+    () =>
+      (entries ?? [])
+        .filter((e) => e.type === "income" && forecastValue(e) != null)
+        .reduce((sum, e) => sum + Number(forecastValue(e)), 0),
+    [entries]
+  )
+
+  const forecastedExpenses = useMemo(
+    () =>
+      (entries ?? [])
+        .filter((e) => e.type === "expense" && forecastValue(e) != null)
+        .reduce((sum, e) => sum + Number(forecastValue(e)), 0),
+    [entries]
+  )
+
+  const forecastedBalance = forecastedIncome - forecastedExpenses
+
   const handleAdd = (type: BudgetType) => {
     setEditingEntry(null)
     setDefaultType(type)
@@ -220,6 +245,49 @@ export function BudgetPage() {
           </Card>
         )}
       </div>
+
+      {hasForecasts && (
+        <div className="mb-6 grid gap-4 sm:grid-cols-3">
+          <Card className="border-dashed">
+            <CardContent className="flex items-center gap-3 p-4">
+              <div className="flex size-10 items-center justify-center rounded-lg bg-emerald-500/10">
+                <TrendingUp className="size-5 text-emerald-500/70" />
+              </div>
+              <div>
+                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Forecasted Income</p>
+                <p className="text-lg font-bold tabular-nums text-emerald-500/70">${formatAmount(forecastedIncome)}</p>
+              </div>
+            </CardContent>
+          </Card>
+          <Card className="border-dashed">
+            <CardContent className="flex items-center gap-3 p-4">
+              <div className="flex size-10 items-center justify-center rounded-lg bg-destructive/10">
+                <TrendingDown className="size-5 text-destructive/70" />
+              </div>
+              <div>
+                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Forecasted Expenses</p>
+                <p className="text-lg font-bold tabular-nums text-destructive/70">${formatAmount(forecastedExpenses)}</p>
+              </div>
+            </CardContent>
+          </Card>
+          <Card className="border-dashed">
+            <CardContent className="flex items-center gap-3 p-4">
+              <div className={cn(
+                "flex size-10 items-center justify-center rounded-lg",
+                forecastedBalance >= 0 ? "bg-saffron/10" : "bg-destructive/10"
+              )}>
+                <DollarSign className={cn("size-5", forecastedBalance >= 0 ? "text-saffron/70" : "text-destructive/70")} />
+              </div>
+              <div>
+                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Forecasted Balance</p>
+                <p className={cn("text-lg font-bold tabular-nums", forecastedBalance >= 0 ? "text-saffron/70" : "text-destructive/70")}>
+                  {forecastedBalance < 0 ? "−" : ""}${formatAmount(Math.abs(forecastedBalance))}
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
 
       {entries && entries.length === 0 ? (
         <EmptyState

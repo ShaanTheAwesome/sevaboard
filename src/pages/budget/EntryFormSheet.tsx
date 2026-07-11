@@ -52,6 +52,9 @@ export function EntryFormSheet({
   const [category, setCategory] = useState(entry?.category ?? "")
   const [isTba, setIsTba] = useState(entry ? entry.amount === null : false)
   const [amount, setAmount] = useState(entry?.amount != null ? String(entry.amount) : "")
+  const [forecastedAmount, setForecastedAmount] = useState(
+    entry?.forecasted_amount != null ? String(entry.forecasted_amount) : ""
+  )
   const [entryDate, setEntryDate] = useState(
     entry?.entry_date ?? new Date().toISOString().slice(0, 10)
   )
@@ -65,6 +68,7 @@ export function EntryFormSheet({
         item: item.trim(),
         category: category.trim(),
         amount: isTba ? null : Number(amount),
+        forecasted_amount: forecastedAmount ? Number(forecastedAmount) : null,
         entry_date: entryDate,
         type: type as BudgetType,
         notes: notes.trim() || null,
@@ -105,6 +109,13 @@ export function EntryFormSheet({
       const parsedAmount = Number(amount)
       if (!amount || isNaN(parsedAmount) || parsedAmount <= 0) {
         toast.error("Enter a valid amount greater than 0")
+        return
+      }
+    }
+    if (forecastedAmount) {
+      const parsedForecast = Number(forecastedAmount)
+      if (isNaN(parsedForecast) || parsedForecast < 0) {
+        toast.error("Enter a valid forecasted amount")
         return
       }
     }
@@ -217,6 +228,22 @@ export function EntryFormSheet({
                   Amount to be announced — this entry won't count toward totals.
                 </p>
               )}
+            </Field>
+
+            <Field>
+              <FieldLabel htmlFor="entry-forecast">Forecasted amount ($, optional)</FieldLabel>
+              <Input
+                id="entry-forecast"
+                type="number"
+                min="0"
+                step="0.01"
+                value={forecastedAmount}
+                onChange={(e) => setForecastedAmount(e.target.value)}
+                placeholder="0.00"
+              />
+              <p className="text-xs text-muted-foreground">
+                Your best estimate for this item — shown separately from the actual amount above.
+              </p>
             </Field>
 
             <Field>

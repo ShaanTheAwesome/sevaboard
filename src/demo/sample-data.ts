@@ -10,6 +10,7 @@ import type {
   SponsorCategory,
   RosterEntry,
   VenueDetails,
+  VenuePhoto,
 } from "@/types"
 
 const now = new Date().toISOString()
@@ -68,14 +69,14 @@ export const DEMO_PLANNING_TASKS: PlanningTask[] = [
 ]
 
 export const DEMO_BUDGET_ENTRIES: BudgetEntry[] = [
-  { id: "be1", item: "Venue hire", category: "Venue", amount: 2500, entry_date: "2026-05-15", notes: "Community hall booking for full day", type: "expense", created_by: "d1", created_at: now, updated_at: now },
-  { id: "be2", item: "Sound system", category: "Equipment", amount: 800, entry_date: "2026-06-01", notes: "PA system + 2 wireless mics", type: "expense", created_by: "d5", created_at: now, updated_at: now },
-  { id: "be3", item: "Flyer printing", category: "Marketing", amount: 150, entry_date: "2026-06-10", notes: "500 colour flyers", type: "expense", created_by: "d2", created_at: now, updated_at: now },
-  { id: "be4", item: "Prasad catering", category: "Food", amount: null, entry_date: "2026-06-20", notes: "Awaiting final quote from caterer", type: "expense", created_by: "d4", created_at: now, updated_at: now },
-  { id: "be5", item: "Stage decorations", category: "Decorations", amount: 350, entry_date: "2026-06-15", notes: null, type: "expense", created_by: "d5", created_at: now, updated_at: now },
-  { id: "be6", item: "Community fund allocation", category: "Community", amount: 3000, entry_date: "2026-04-01", notes: "Annual event budget from the temple committee", type: "income", created_by: "d1", created_at: now, updated_at: now },
-  { id: "be7", item: "ABC Sweets sponsorship", category: "Sponsorship", amount: 500, entry_date: "2026-06-05", notes: null, type: "income", created_by: "d1", created_at: now, updated_at: now },
-  { id: "be8", item: "Gold class donation", category: "Donation", amount: 200, entry_date: "2026-06-18", notes: null, type: "income", created_by: "d1", created_at: now, updated_at: now },
+  { id: "be1", item: "Venue hire", category: "Venue", amount: 2500, forecasted_amount: 2500, entry_date: "2026-05-15", notes: "Community hall booking for full day", type: "expense", created_by: "d1", created_at: now, updated_at: now },
+  { id: "be2", item: "Sound system", category: "Equipment", amount: 800, forecasted_amount: null, entry_date: "2026-06-01", notes: "PA system + 2 wireless mics", type: "expense", created_by: "d5", created_at: now, updated_at: now },
+  { id: "be3", item: "Flyer printing", category: "Marketing", amount: 150, forecasted_amount: null, entry_date: "2026-06-10", notes: "500 colour flyers", type: "expense", created_by: "d2", created_at: now, updated_at: now },
+  { id: "be4", item: "Prasad catering", category: "Food", amount: null, forecasted_amount: 800, entry_date: "2026-06-20", notes: "Awaiting final quote from caterer", type: "expense", created_by: "d4", created_at: now, updated_at: now },
+  { id: "be5", item: "Stage decorations", category: "Decorations", amount: 350, forecasted_amount: null, entry_date: "2026-06-15", notes: null, type: "expense", created_by: "d5", created_at: now, updated_at: now },
+  { id: "be6", item: "Community fund allocation", category: "Community", amount: 3000, forecasted_amount: null, entry_date: "2026-04-01", notes: "Annual event budget from the temple committee", type: "income", created_by: "d1", created_at: now, updated_at: now },
+  { id: "be7", item: "ABC Sweets sponsorship", category: "Sponsorship", amount: 500, forecasted_amount: null, entry_date: "2026-06-05", notes: null, type: "income", created_by: "d1", created_at: now, updated_at: now },
+  { id: "be8", item: "Gold class donation", category: "Donation", amount: 200, forecasted_amount: null, entry_date: "2026-06-18", notes: null, type: "income", created_by: "d1", created_at: now, updated_at: now },
 ]
 
 export const DEMO_MARKETING_ITEMS: MarketingItem[] = [
@@ -123,3 +124,9 @@ export const DEMO_VENUE_DETAILS: VenueDetails = {
   updated_by: "d1",
   updated_at: now,
 }
+
+export const DEMO_VENUE_PHOTOS: VenuePhoto[] = [
+  { id: "vp1", label: "High Energy Room", image_path: "https://placehold.co/640x360/1e293b/f5f3ee?text=High+Energy+Room", sort_order: 0, created_by: "d1", created_at: now },
+  { id: "vp2", label: "CM Room + Bhakti", image_path: "https://placehold.co/640x360/1e293b/f5f3ee?text=CM+Room+%2B+Bhakti", sort_order: 1, created_by: "d1", created_at: now },
+  { id: "vp3", label: "Corridor Area", image_path: "https://placehold.co/640x360/1e293b/f5f3ee?text=Corridor+Area", sort_order: 2, created_by: "d1", created_at: now },
+]

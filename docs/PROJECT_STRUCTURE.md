@@ -28,6 +28,8 @@ For the security model, see [`SECURITY.md`](./SECURITY.md).
   - `003_public_read.sql` — anonymous read access on all tables
   - `004_marketing_sponsors.sql` — marketing_items + sponsors tables
   - `005_sponsor_categories.sql` — sponsor_categories table (name + color)
+  - `006_budget_forecasted.sql` — budget_entries.forecasted_amount column
+  - `007_venue_photos.sql` — venue_photos table + `venue-photos` Storage bucket
 - `functions/invite-member/index.ts` — Edge Function: admin sends invite email
 - `functions/remove-member/index.ts` — Edge Function: admin deletes a user
 - `functions/_shared/cors.ts` — shared CORS headers for Edge Functions
@@ -58,7 +60,7 @@ For the security model, see [`SECURITY.md`](./SECURITY.md).
 
 ### `src/types/` — TypeScript types
 
-- `database.ts` — hand-written types mirroring the SQL schema: 8 enums + `Database` object with `Row`/`Insert`/`Update` for all 13 tables
+- `database.ts` — hand-written types mirroring the SQL schema: 8 enums + `Database` object with `Row`/`Insert`/`Update` for all 14 tables
 - `index.ts` — friendly type aliases (`Profile`, `PlanningTask`, `Sponsor`, etc.), label constants (`ROLE_LABELS`, `STATUS_LABELS`, `MARKETING_PLATFORM_LABELS`, `SPONSOR_STATUS_LABELS`, `ASSIGNABLE_ROLES`)
 
 ### `src/contexts/` — React context
@@ -72,6 +74,7 @@ For the security model, see [`SECURITY.md`](./SECURITY.md).
 | --- | --- | --- |
 | `useAuth.ts` | — | Consumes `AuthContext` |
 | `useVenueDetails.ts` | `venue_details` | Singleton venue row |
+| `useVenuePhotos.ts` | `venue_photos` | Venue map/layout gallery photos |
 | `useProfiles.ts` | `profiles` | All team members |
 | `useDepartments.ts` | `departments` | All departments |
 | `useRooms.ts` | `rooms` | Program planner rooms |
@@ -125,7 +128,7 @@ Generated components: `alert-dialog`, `avatar`, `badge`, `button`, `card`,
 | `/seva-roster` | `SevaRosterPage` | Complete (grouped by role, time pickers) |
 | `/finances` | `BudgetPage` | Complete (income/expense, TBA, filters) — **requires login** |
 | `/sponsors` | `SponsorsPage` | Complete (relationship tracking, status pipeline, color-coded categories with counts) |
-| `/venue-details` | `VenueDetailsPage` | Complete (view + edit) |
+| `/venue-details` | `VenueDetailsPage` | Complete (view + edit, drag-to-reorder photo gallery) |
 | `/team` | `TeamPage` | Complete (members, departments, invite/remove) — **requires login** |
 | `/login` | `LoginPage` | Complete |
 | `/set-password` | `SetPasswordPage` | Complete |
@@ -134,6 +137,10 @@ Generated components: `alert-dialog`, `avatar`, `badge`, `button`, `card`,
 ### `src/pages/sponsors/` — sponsor module helpers
 
 - `category-helpers.ts` — `SPONSOR_COLORS` (6 named color options with Tailwind dot/badge classes) + `fallbackCategoryColor()` (hash-based fallback for unrecognised category names)
+
+### `src/pages/venue-details/` — venue module helpers
+
+- `VenuePhotoGallery.tsx` — venue map/layout photo gallery: upload (Supabase Storage), delete, and drag-to-reorder (`@dnd-kit/sortable`) tiles with an optional label per photo
 
 ### `src/demo/` — demo mode
 
@@ -149,3 +156,4 @@ Generated components: `alert-dialog`, `avatar`, `badge`, `button`, `card`,
 - `PROJECT_LOG.md` — architecture decisions, schema summary, implementation log
 - `PROJECT_STRUCTURE.md` — this file
 - `SECURITY.md` — security model, RLS policies, audit findings
+- `summary.md` — plain-language walkthrough of how the app runs end to end (React patterns used, data flow, how the database is put together)

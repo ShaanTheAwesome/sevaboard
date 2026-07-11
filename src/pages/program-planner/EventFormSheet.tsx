@@ -23,6 +23,7 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet"
 import { ConfirmDialog } from "@/components/common/ConfirmDialog"
+import { minutesToTime, timeToMinutes, SCHEDULE_END, SLOT_MINUTES } from "./schedule-helpers"
 import type { ProgramItem, Room } from "@/types"
 
 interface EventFormSheetProps {
@@ -37,6 +38,10 @@ interface EventFormSheetProps {
 
 function pad(n: number) {
   return String(n).padStart(2, "0")
+}
+
+function addSlot(time: string) {
+  return minutesToTime(Math.min(timeToMinutes(time) + SLOT_MINUTES, SCHEDULE_END))
 }
 
 const TIME_OPTIONS = Array.from({ length: 17 }, (_, i) => {
@@ -63,7 +68,12 @@ export function EventFormSheet({
   const [roomId, setRoomId] = useState(event?.room_id ?? defaultRoomId ?? rooms[0]?.id ?? "")
   const [columnName, setColumnName] = useState(event?.column_name ?? defaultColumnName ?? "")
   const [startTime, setStartTime] = useState(event?.start_time?.slice(0, 5) ?? defaultStartTime ?? "14:00")
-  const [endTime, setEndTime] = useState(event?.end_time?.slice(0, 5) ?? "14:15")
+  const [endTime, setEndTime] = useState(
+    event?.end_time?.slice(0, 5) ?? addSlot(defaultStartTime ?? "14:00")
+  )
+  // Existing events keep their saved end time as-is; only a fresh "Add event"
+  // default should auto-follow the start time until the user edits it directly.
+  const [endTimeTouched, setEndTimeTouched] = useState(Boolean(event))
   const [activityName, setActivityName] = useState(event?.activity_name ?? "")
   const [description, setDescription] = useState(event?.description ?? "")
   const [confirmOpen, setConfirmOpen] = useState(false)
@@ -218,7 +228,11 @@ export function EventFormSheet({
                 <FieldLabel>Start time</FieldLabel>
                 <Select
                   value={startTime}
-                  onValueChange={(v) => v && setStartTime(v)}
+                  onValueChange={(v) => {
+                    if (!v) return
+                    setStartTime(v)
+                    if (!endTimeTouched) setEndTime(addSlot(v))
+                  }}
                   items={TIME_OPTIONS}
                 >
                   <SelectTrigger className="w-full">
@@ -238,7 +252,11 @@ export function EventFormSheet({
                 <FieldLabel>End time</FieldLabel>
                 <Select
                   value={endTime}
-                  onValueChange={(v) => v && setEndTime(v)}
+                  onValueChange={(v) => {
+                    if (!v) return
+                    setEndTime(v)
+                    setEndTimeTouched(true)
+                  }}
                   items={TIME_OPTIONS}
                 >
                   <SelectTrigger className="w-full">

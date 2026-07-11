@@ -20,6 +20,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Field, FieldGroup, FieldLabel, FieldError } from "@/components/ui/field"
 import type { VenueDetails } from "@/types"
+import { VenuePhotoGallery } from "./VenuePhotoGallery"
 
 const venueDetailsSchema = z.object({
   venue_name: z.string(),
@@ -84,11 +85,12 @@ function DetailRow({
 }
 
 export function VenueDetailsPage() {
-  const { user } = useAuth()
+  const { user, profile } = useAuth()
   const demoGuard = useDemoGuard()
   const queryClient = useQueryClient()
   const { data, isLoading } = useVenueDetails()
   const [isEditing, setIsEditing] = useState(false)
+  const canEdit = profile?.role === "admin" || profile?.role === "team_lead"
 
   const {
     register,
@@ -347,6 +349,8 @@ export function VenueDetailsPage() {
           )}
         </>
       )}
+
+      <VenuePhotoGallery canEdit={canEdit} />
     </div>
   )
 }
