@@ -6,7 +6,7 @@ export function useProfiles() {
     queryKey: ["profiles"],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("profiles")
+        .from("profiles_public")
         .select("*")
         .order("full_name", { ascending: true, nullsFirst: false })
 

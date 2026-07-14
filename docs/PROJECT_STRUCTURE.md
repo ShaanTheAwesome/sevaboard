@@ -30,6 +30,7 @@ For the security model, see [`SECURITY.md`](./SECURITY.md).
   - `005_sponsor_categories.sql` — sponsor_categories table (name + color)
   - `006_budget_forecasted.sql` — budget_entries.forecasted_amount column
   - `007_venue_photos.sql` — venue_photos table + `venue-photos` Storage bucket
+  - `008_pii_restriction.sql` — tightens profiles/sponsors SELECT RLS + adds `profiles_public`/`sponsors_public` redacting views
 - `functions/invite-member/index.ts` — Edge Function: admin sends invite email
 - `functions/remove-member/index.ts` — Edge Function: admin deletes a user
 - `functions/_shared/cors.ts` — shared CORS headers for Edge Functions
@@ -60,7 +61,7 @@ For the security model, see [`SECURITY.md`](./SECURITY.md).
 
 ### `src/types/` — TypeScript types
 
-- `database.ts` — hand-written types mirroring the SQL schema: 8 enums + `Database` object with `Row`/`Insert`/`Update` for all 14 tables
+- `database.ts` — hand-written types mirroring the SQL schema: 8 enums + `Database` object with `Row`/`Insert`/`Update` for all 14 tables, plus a `Views` map for the two PII-redacting views (`profiles_public`, `sponsors_public`)
 - `index.ts` — friendly type aliases (`Profile`, `PlanningTask`, `Sponsor`, etc.), label constants (`ROLE_LABELS`, `STATUS_LABELS`, `MARKETING_PLATFORM_LABELS`, `SPONSOR_STATUS_LABELS`, `ASSIGNABLE_ROLES`)
 
 ### `src/contexts/` — React context
@@ -75,14 +76,14 @@ For the security model, see [`SECURITY.md`](./SECURITY.md).
 | `useAuth.ts` | — | Consumes `AuthContext` |
 | `useVenueDetails.ts` | `venue_details` | Singleton venue row |
 | `useVenuePhotos.ts` | `venue_photos` | Venue map/layout gallery photos |
-| `useProfiles.ts` | `profiles` | All team members |
+| `useProfiles.ts` | `profiles_public` view | All team members (email/phone redacted for anon) |
 | `useDepartments.ts` | `departments` | All departments |
 | `useRooms.ts` | `rooms` | Program planner rooms |
 | `useProgramItems.ts` | `program_items` | Schedule events |
 | `usePlanningTasks.ts` | `planning_tasks` | Timeline tasks |
 | `useBudgetEntries.ts` | `budget_entries` | Finance entries |
 | `useMarketingItems.ts` | `marketing_items` | Marketing activities |
-| `useSponsors.ts` | `sponsors` | Sponsor relationships |
+| `useSponsors.ts` | `sponsors_public` view | Sponsor relationships (contact info redacted for non-admin/lead) |
 | `useRosterEntries.ts` | `roster_entries` | Volunteer assignments |
 | `useSponsorCategories.ts` | `sponsor_categories` | Sponsor category name→color mapping |
 | `useIdleTimer.ts` | — | Inactivity detection |

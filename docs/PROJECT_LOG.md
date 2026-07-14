@@ -563,8 +563,75 @@ user's request.
     guarded by the existing `useDemoGuard`/`ConfirmDialog` demo-mode
     pattern.
 
+### Session 9 — Marketing external site banner
+
+- **Marketing — link to dedicated campaign site** (`MarketingPage.tsx`):
+  organizer built a separate site (`https://kj2026-theta.vercel.app/`) for
+  marketing campaign work and wanted it surfaced prominently without
+  touching any existing Marketing module functionality. Added a
+  `MarketingSiteBanner` — a full-width saffron-accented banner link at the
+  top of the page (shown in both the loading skeleton and loaded states)
+  reading "All marketing enquiries are on our dedicated campaign site" with
+  a "Visit site" pill, opening in a new tab (`target="_blank"`,
+  `rel="noreferrer"`). Purely additive — existing activity list, filters,
+  and add/edit/delete flows are untouched.
+
+### Session 10 — Column-level PII restriction (profiles + sponsors)
+
+- **Security fix, not just a UI restriction**: `SECURITY.md` §10 item 1
+  flagged that `profiles`/`sponsors` RLS SELECT policies returned every
+  column to any reader (`anon` included), while the UI merely hid
+  email/phone/contact fields. In practice this was already live, not
+  theoretical — `useProfiles()` is called unconditionally on public pages
+  (Dashboard, Marketing, Planning Timeline) just to resolve assignee names,
+  and `SponsorsPage` is itself a public route, so PII was already present in
+  the network response for any visitor, not just reachable via a crafted
+  API call.
+- **Why a view, not just an RLS policy**: Postgres RLS is row-level, not
+  column-level — a policy can grant/deny a whole row, not "this row minus
+  two columns." Migration `008_pii_restriction.sql` uses the standard
+  pattern instead: tighten the base table's SELECT policy to whoever should
+  see every column, then add a `*_public` view that re-selects the same
+  columns but nulls the sensitive ones for callers who shouldn't see them.
+  The view is owned by a role with `BYPASSRLS` (true for migrations run via
+  the SQL Editor), so it can still read the full row to decide what to
+  redact even though the base table's own RLS is now tighter.
+- **`profiles`**: clarified with the user that the intended boundary is
+  "has an account" rather than "is admin" — i.e. any authenticated user
+  (not just admins) should see member contact info, only anonymous/logged-
+  out visitors should not. Base table SELECT → `to authenticated using
+  (true)`. `profiles_public` view nulls `email`/`phone` when `auth.uid() is
+  null`. `useProfiles()` always queries the view — no role branching needed
+  in the frontend, since the view itself resolves real vs. null values
+  based on the caller's session. `MemberRow.tsx` updated to show
+  email/phone unconditionally (previously gated on `role === "admin"`,
+  which was narrower than the new DB-enforced boundary).
+- **`sponsors`**: kept the existing UI boundary (admin or team_lead) rather
+  than widening it — this is a business decision about who manages sponsor
+  relationships, distinct from "just being logged in." Base table SELECT →
+  `to authenticated using (is_admin_or_lead())`. `sponsors_public` view
+  nulls `contact_name`/`contact_phone`/`notes` for everyone else.
+  **`amount` and `person_responsible` are deliberately left unredacted** —
+  `amount` feeds the page's public "Confirmed: $X" total shown to every
+  visitor (redacting it per-row would have broken that aggregate),
+  `person_responsible` was never gated in the UI to begin with (it's a
+  visible field on every sponsor card, not admin-only). Only the fields
+  that were both (a) UI-gated already and (b) not relied on elsewhere got
+  redacted at the DB level.
+- **Type changes**: `database.ts` gained a populated `Views` map
+  (`profiles_public`, `sponsors_public` — Row shapes identical to the real
+  tables, so zero consumer code needed type changes). `useProfiles.ts` /
+  `useSponsors.ts` now query the view instead of the table; every other
+  call site (mutations in `MemberRow.tsx`, `SponsorFormSheet.tsx`,
+  `SponsorsPage.tsx`'s delete, and `AuthContext.tsx`'s own-profile fetch)
+  still correctly targets the real table.
+- Demo mode is unaffected — it never calls Supabase at all, so
+  `DEMO_PROFILES`/`DEMO_SPONSORS` already include full contact fields
+  regardless of this change.
+
 ### Pending / not yet implemented
 
-- **Marketing external link**: friend built a Vercel.app marketing schedule
-  page; a hyperlink/button should be added to the Marketing module. Waiting
-  for the URL.
+Nothing currently tracked — the remaining security recommendations in
+[`SECURITY.md`](./SECURITY.md) §10 (planning_tasks RLS column scope,
+Supabase dashboard settings double-check, CSP meta tag) are the next places
+to look for follow-up work.

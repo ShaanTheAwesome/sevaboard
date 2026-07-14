@@ -2,7 +2,7 @@ import { useMemo, useState } from "react"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { format, isPast, parseISO } from "date-fns"
 import { toast } from "sonner"
-import { Megaphone, Pencil, Plus, Trash2 } from "lucide-react"
+import { ExternalLink, Megaphone, Pencil, Plus, Trash2 } from "lucide-react"
 import { supabase } from "@/lib/supabase"
 import { cn } from "@/lib/utils"
 import { useAuth } from "@/hooks/useAuth"
@@ -27,7 +27,38 @@ import { MARKETING_PLATFORM_LABELS, MARKETING_STATUS_LABELS } from "@/types"
 import type { MarketingItem, MarketingStatus } from "@/types"
 import { MarketingFormSheet } from "./MarketingFormSheet"
 
+const MARKETING_SITE_URL = "https://kj2026-theta.vercel.app/"
+
 const ALL = "all"
+
+function MarketingSiteBanner() {
+  return (
+    <a
+      href={MARKETING_SITE_URL}
+      target="_blank"
+      rel="noreferrer"
+      className="mb-4 flex flex-col items-start justify-between gap-3 rounded-lg border border-saffron/30 bg-saffron/10 p-4 transition-colors hover:bg-saffron/15 sm:flex-row sm:items-center"
+    >
+      <div className="flex items-center gap-3">
+        <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-saffron/20">
+          <Megaphone className="size-5 text-saffron" />
+        </div>
+        <div>
+          <p className="text-sm font-semibold text-foreground">
+            All marketing enquiries are on our dedicated campaign site
+          </p>
+          <p className="text-xs text-muted-foreground">
+            Click here to take a look — {MARKETING_SITE_URL}
+          </p>
+        </div>
+      </div>
+      <span className="inline-flex shrink-0 items-center gap-1.5 rounded-md bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground">
+        Visit site
+        <ExternalLink className="size-3.5" />
+      </span>
+    </a>
+  )
+}
 
 const STATUS_COLORS: Record<MarketingStatus, string> = {
   not_started: "bg-muted text-muted-foreground",
@@ -174,6 +205,7 @@ export function MarketingPage() {
     return (
       <div>
         <PageHeader title="Marketing" description="Campaigns, deadlines, and platforms." />
+        <MarketingSiteBanner />
         <div className="space-y-2">
           <Skeleton className="h-20" />
           <Skeleton className="h-20" />
@@ -196,6 +228,8 @@ export function MarketingPage() {
           </RoleGate>
         }
       />
+
+      <MarketingSiteBanner />
 
       {items && items.length === 0 ? (
         <EmptyState

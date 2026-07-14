@@ -355,7 +355,38 @@ export type Database = {
         Relationships: []
       }
     }
-    Views: Record<string, never>
+    Views: {
+      profiles_public: {
+        Row: {
+          id: string
+          full_name: string | null
+          email: string | null
+          role: UserRole
+          department_id: string | null
+          phone: string | null
+          created_at: string
+          updated_at: string
+        }
+        Relationships: []
+      }
+      sponsors_public: {
+        Row: {
+          id: string
+          company_name: string
+          category: string | null
+          status: SponsorStatus
+          amount: number | null
+          person_responsible: string | null
+          contact_name: string | null
+          contact_phone: string | null
+          notes: string | null
+          created_by: string | null
+          created_at: string
+          updated_at: string
+        }
+        Relationships: []
+      }
+    }
     Functions: Record<string, never>
     Enums: {
       user_role: UserRole

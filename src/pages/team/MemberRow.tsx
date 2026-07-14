@@ -186,13 +186,11 @@ export function MemberRow({ profile, departments, canEdit }: MemberRowProps) {
         </Avatar>
         <div className="min-w-0 flex-1">
           <p className="truncate font-medium text-foreground">{profile.full_name || "Unnamed"}</p>
-          {canEdit && (
-            <>
-              <p className="truncate text-sm text-muted-foreground">{profile.email}</p>
-              {profile.phone && (
-                <p className="truncate text-xs text-muted-foreground">{profile.phone}</p>
-              )}
-            </>
+          {profile.email && (
+            <p className="truncate text-sm text-muted-foreground">{profile.email}</p>
+          )}
+          {profile.phone && (
+            <p className="truncate text-xs text-muted-foreground">{profile.phone}</p>
           )}
         </div>
         <div className="flex shrink-0 flex-col items-end gap-1.5">

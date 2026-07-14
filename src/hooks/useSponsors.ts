@@ -6,7 +6,7 @@ export function useSponsors() {
     queryKey: ["sponsors"],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("sponsors")
+        .from("sponsors_public")
         .select("*")
         .order("status")
         .order("company_name")

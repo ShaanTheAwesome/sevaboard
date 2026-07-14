@@ -42,12 +42,12 @@ Enforced at **two layers**:
 
 | Table | Read | Write |
 | --- | --- | --- |
-| `profiles` | anon + authenticated | self (role/dept locked by trigger) or admin |
+| `profiles` | authenticated only (full row); `profiles_public` view (anon + authenticated, email/phone nulled for anon) | self (role/dept locked by trigger) or admin |
 | `departments`, `rooms`, `room_notes`, `program_items`, `roster_entries`, `venue_details` | anon + authenticated | admin or team_lead |
 | `planning_tasks` | anon + authenticated | admin/team_lead (insert/delete); admin/team_lead **or** assignee (update) |
 | `budget_entries` | anon + authenticated | admin or team_lead |
 | `marketing_items` | anon + authenticated | admin or team_lead |
-| `sponsors` | anon + authenticated | admin or team_lead |
+| `sponsors` | authenticated + admin/lead only (full row); `sponsors_public` view (anon + authenticated, contact_name/contact_phone/notes nulled for non-admin/lead) | admin or team_lead |
 | `venue_photos` (table + `venue-photos` Storage bucket) | anon + authenticated | admin or team_lead |
 
 - **`prevent_self_role_escalation`** trigger: silently reverts `role`/
@@ -64,17 +64,40 @@ Enforced at **two layers**:
 
 ### PII visibility
 
-- **Profiles**: anonymous visitors see name and role only (email/phone
-  hidden by the UI). Logged-in admins see all fields.
-- **Sponsors**: anonymous visitors see company name and status only.
-  Contact details, amount, person responsible, and notes are admin-only
-  in the UI.
-- **Note**: the RLS SELECT policies on `profiles` and `sponsors` return
-  all columns to any reader (including `anon`). The PII filtering is done
-  in the React components, not in the database. A technically sophisticated
-  person could query the API directly to see email/phone. For a small
-  community team this is acceptable; for a larger deployment, consider
-  column-level restrictions via a Postgres view.
+Enforced in the **database**, not just the UI, via migration
+`008_pii_restriction.sql`. Postgres RLS is row-level, not column-level, so
+the pattern is: tighten the base table's SELECT policy to whoever should see
+every column, then add a `*_public` view that re-selects the same columns
+but nulls out the sensitive ones for callers who shouldn't see them. The
+view is owned by a role with `BYPASSRLS` (true of migrations run via the
+Supabase SQL Editor), so it can still read the full underlying row to decide
+what to redact, even though the base table's own RLS is now tighter.
+
+- **`profiles`**: base table SELECT is `to authenticated using (true)` —
+  any logged-in account (not anon) can read the full row. The general-
+  purpose `profiles_public` view nulls `email`/`phone` when
+  `auth.uid() is null`, so anonymous visitors get name/role/department only,
+  and any authenticated user gets full contact info through the same view
+  (no app-level branching needed — `useProfiles()` always queries the view).
+  This was previously enforced only in the UI (`MemberRow.tsx` gated the
+  fields on `role === "admin"`); it's now open to **any authenticated user**,
+  not just admins, and enforced by the database — see the discussion in
+  [`PROJECT_LOG.md`](./PROJECT_LOG.md) for why the boundary moved from
+  admin-only to "has an account."
+- **`sponsors`**: base table SELECT is `to authenticated using (is_admin_or_lead())`.
+  The `sponsors_public` view nulls `contact_name`/`contact_phone`/`notes`
+  for non-admin/lead callers. `amount` and `person_responsible` are **not**
+  redacted — `amount` feeds the page's public "Confirmed: $X" total shown to
+  every visitor, and `person_responsible` was never gated in the UI to begin
+  with, so nulling either would have broken existing behavior rather than
+  closed a leak.
+- Before this fix, both tables' RLS SELECT policies returned all columns to
+  any reader including `anon`, while the UI merely hid fields — meaning
+  email/phone/sponsor contact info was already present in the network
+  response on public pages (Dashboard, Marketing, Planning Timeline all call
+  `useProfiles()` unconditionally for assignee-name lookups; `SponsorsPage`
+  is itself a public route), not just reachable via a deliberately crafted
+  API call.
 
 ## 3. Frontend secrets & environment variables
 
@@ -155,10 +178,8 @@ respects RLS for the `authenticated` role.
 
 ## 10. Open items / recommendations
 
-1. **Column-level PII restriction** — currently the UI hides email/phone
-   from anonymous visitors, but the API still returns them. Consider a
-   Postgres view that restricts columns for `anon` role if the site URL
-   becomes more widely shared.
+1. ~~**Column-level PII restriction**~~ — **fixed** in migration
+   `008_pii_restriction.sql` (see §2 "PII visibility" above).
 2. **Planning tasks RLS** — the `planning_tasks_update` policy allows
    assignees to update any column (not just `status`). The UI only shows
    a status toggle, but a direct API call could change other fields.
