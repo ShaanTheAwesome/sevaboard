@@ -100,6 +100,13 @@ export function LoginPage() {
                 <Button type="submit" disabled={isSubmitting}>
                   {isSubmitting ? "Signing in..." : "Sign in"}
                 </Button>
+                <Button
+                  type="button"
+                  className="bg-gray-600 text-white hover:bg-gray-700 hover:text-gray-300"
+                  onClick={() => navigate("/")}
+                >
+                  Go back Home
+                </Button>
               </Field>
             </FieldGroup>
           </form>
