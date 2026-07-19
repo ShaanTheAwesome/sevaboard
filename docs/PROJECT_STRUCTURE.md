@@ -14,6 +14,7 @@ For the security model, see [`SECURITY.md`](./SECURITY.md).
 | `eslint.config.js` | ESLint 9 flat config with React Hooks/Refresh rules |
 | `components.json` | shadcn/ui CLI config (style `base-nova`, Base UI primitives) |
 | `index.html` | Entry HTML — title, theme-color meta, PWA links, mounts `#root` |
+| `vercel.json` | Rewrites every path to `/index.html` so Vercel serves the SPA for direct/deep-link navigation (e.g. auth redirect links) instead of 404ing on routes with no matching static file |
 | `.env` | `VITE_SUPABASE_URL` / `VITE_SUPABASE_ANON_KEY` (gitignored) |
 | `SUPABASE_SETUP.md` | Step-by-step Supabase project setup guide |
 | `README.md` | Project overview, tech stack, setup instructions |
